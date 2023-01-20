@@ -12,32 +12,71 @@ import statistics as stat
 import os
 
 ############################################################
+############################################################
 ## GLOBALS
 
 # function that clears the terminal
 clear = lambda : os.system('cls')
 
+# converts the strings into binaries. 1 for "Female", 0 for everything else
+gender_to_bin = lambda g : int(bool(g == "Female"))
+
 bar = "************************************************************"
 
 ############################################################
-## FUNCTIONS
-
-def read_data(filename):
-    data = pd.read_csv(filename)
-        
-    return data
-         
+############################################################
+## FUNCTIONS         
          
 def bin_gender(data):
     """
     
     """
     
-    genders_s = data.iloc[:,-1].values.tolist()
+    genders = [gender_to_bin(entry) for entry in data.iloc[:,-1]]
     
-    male = genders_s.count("Male")
+    male = genders.count(0)
     
-    female = genders_s.count("Female")
+    female = genders.count(1)
+    
+    mu = stat.mean(genders)
+    
+    sigma = stat.stdev(genders)
+    
+    N = stat.NormalDist(mu, sigma)
+    
+    print(f"{'female leads: ':{'.'}<30}{f' {female}':{'.'}>30}")
+    print(f"{'male leads: ':{'.'}<30}{f' {male}':{'.'}>30}")
+    print(f"{'total samples: ':{'.'}<30}{f' {male + female}':{'.'}>30}")
+    print(bar, "\n")
+    print("APPROXIMATION TO NORMAL DISTRIBUTION")
+    print(bar)
+    
+    meanstr = f"mean [\u03BC]: "
+    stdstr = f"standard deviation [\u03C3]: "
+    invar = "P(gender \u2208 [0.5,1]): " 
+    
+    print(f"{meanstr:{'.'}<30}{f' {round(mu, 3)}':{'.'}>30}")
+    print(f"{stdstr:{'.'}<30}{f' {round(sigma, 3)}':{'.'}>30}")
+    print(f"{invar:{'.'}<30}{f' {round(1-N.cdf(0.5),3)}':{'.'}>30}")
+    print(bar)
+    
+    
+    x = list(np.linspace(0,1,200))
+    y = [N.pdf(xt) for xt in x]
+    
+    # PLOTTING    
+    ########################################################
+    plt.figure(3)
+    plt.plot(x,y)
+    
+    plt.axvline(x = 0.5, color = 'r', linestyle="--")
+    plt.grid()
+    plt.xticks([0 + 0.1*k for k in range(11)])
+    plt.xlabel("Binary gender [Male,Female]=[0,1]")
+    plt.ylabel("Probability density")
+    plt.title("Patriarchy            Equality            Matriarchy")
+    plt.savefig("stat_analysis/graphs/normal.png")
+    ########################################################
     
     return [male, female]
 
@@ -59,10 +98,8 @@ def lin_reg(xdata, ydata):
     # (X'X)**(-1)X'Y
     return Z@Xt@Y
 
+
 def time_gender(data):
-    
-    # converts the strings into binaries. 1 for "Female", 0 for everything else
-    gender_to_bin = lambda g : int(bool(g == "Female"))
     
     years = data[["Year", "Lead"]].sort_values(by="Year").values.tolist()
     
@@ -103,7 +140,7 @@ def time_gender(data):
     y2 = [theta2[0] + x2[0]*theta2[1], theta2[0]+x2[1]*theta2[1]]
     
     # PLOTTING    
-    ##########################################################
+    ########################################################
 
     # the number of male and female leads
     plt.figure(0)
@@ -137,23 +174,76 @@ def time_gender(data):
     plt.ylabel("Total amount of movies in data")
     plt.savefig("stat_analysis/graphs/amount.png")
     
+    
+def gross_gender(data):
+    
+    gross_data = data[["Gross", "Lead"]].values.tolist()
+    
+    male = sorted([entry[0] for entry in gross_data if entry[1] == "Male"])
+    
+    female = sorted([entry[0] for entry in gross_data if entry[1] == "Female"])
+    
+    mu_male = stat.mean(male)
+    mu_female = stat.mean(female)
+    
+    sigma_male = stat.stdev(male)
+    
+    sigma_female = stat.stdev(female)
+    
+    N_male = stat.NormalDist(mu_male, sigma_male)
+    N_female = stat.NormalDist(mu_female, sigma_female)
+
+    x_male = np.linspace(0,male[-1],200)
+    y_male = [N_male.pdf(x) for x in x_male]
+    
+    x_female = np.linspace(0,female[-1],200)
+    y_female = [N_female.pdf(x) for x in x_female]
+    
+    # PLOTTING    
+    ########################################################
+    plt.figure(4)
+    plt.plot(x_female, y_female, '--r', label='Female')
+    plt.plot(x_male, y_male, '--b', label='Male')
+    plt.axvline(x = mu_female, color = 'r', linestyle=":")
+    plt.axvline(x = mu_male, color = 'b', linestyle=":")
+    plt.title("Normal distribution of the grossing based on lead gender")
+    plt.xlabel("Grossing")
+    plt.legend()
+    plt.grid()
+    plt.show()
+    ########################################################
+    
+    fmu_str = "female mean [\u03BC]: "
+    fsi_str = "female strd deviation [\u03C3]: "
+    mmu_str = "male mean [\u03BC]: "
+    msi_str = "male strd deviation [\u03C3]: "
+    
+    print("\nGROSSING BY GENDER")
+    print(bar)
+    print(f"{fmu_str:{'.'}<30}{f' {round(mu_female,2)}':{'.'}>30}")
+    print(f"{fsi_str:{'.'}<30}{f' {round(sigma_female,2)}':{'.'}>30}\n")
+    print(f"{mmu_str:{'.'}<30}{f' {round(mu_male,2)}':{'.'}>30}")
+    print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
+    print(bar)
+
+############################################################
 ############################################################
 ## MAIN
           
 def main():
     
     training_data = pd.read_csv("data/train.csv")
-    test_data = pd.read_csv("data/test.csv")
     
-    # print(test_data[0])
-    
-    
-    # print(test_data.iloc[:,0])
+    print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
+    print(bar)
     
     bin_gender(training_data)
     
     time_gender(training_data)
-    
+
+    gross_gender(training_data)
+
+############################################################
 ############################################################
 ## RUN CODE
     
