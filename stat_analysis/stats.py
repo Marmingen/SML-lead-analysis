@@ -210,7 +210,7 @@ def gross_gender(data):
     plt.xlabel("Grossing")
     plt.legend()
     plt.grid()
-    plt.show()
+    plt.savefig("stat_analysis/graphs/grossing.png")
     ########################################################
     
     fmu_str = "female mean [\u03BC]: "
@@ -226,6 +226,21 @@ def gross_gender(data):
     print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
     print(bar)
 
+def gross_lines(data):
+    
+    lines_data = data[["Gross", "Number words female"]].sort_values(by="Gross").values.tolist()
+    
+    gross = [entry[0] for entry in lines_data]
+    lines = [entry[1] for entry in lines_data]
+    
+    mu = stat.mean(gross)
+    
+    plt.figure(6)
+    plt.scatter(gross, lines)
+    plt.show()
+    
+    # print(lines_data)
+
 ############################################################
 ############################################################
 ## MAIN
@@ -237,11 +252,13 @@ def main():
     print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
     print(bar)
     
-    bin_gender(training_data)
+    # bin_gender(training_data)
     
-    time_gender(training_data)
+    # time_gender(training_data)
 
-    gross_gender(training_data)
+    # gross_gender(training_data)
+    
+    gross_lines(training_data)
 
 ############################################################
 ############################################################
