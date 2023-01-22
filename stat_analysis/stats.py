@@ -5,6 +5,10 @@
 ############################################################
 ## IMPORTS
 
+import sys
+sys.path.append(str(sys.path[0][:-14]))
+
+import general_methods as gm
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -26,7 +30,7 @@ bar = "************************************************************"
 ############################################################
 ############################################################
 ## FUNCTIONS         
-         
+
 def bin_gender(data):
     """
     
@@ -81,24 +85,6 @@ def bin_gender(data):
     return [male, female]
 
 
-def lin_reg(xdata, ydata):
-    
-    ones = np.ones(len(xdata))
-    
-    Xtemp = np.array(xdata)
-    
-    Xt = np.vstack((ones, Xtemp))   # X'
-    
-    X = np.transpose(Xt)
-    
-    Y = np.transpose(np.array(ydata))
-    
-    Z = np.linalg.inv(Xt@X)
-    
-    # (X'X)**(-1)X'Y
-    return Z@Xt@Y
-
-
 def time_gender(data):
     
     years = data[["Year", "Lead"]].sort_values(by="Year").values.tolist()
@@ -130,12 +116,12 @@ def time_gender(data):
     
     # linear regression for the fraction of female leads
     # using all of the data
-    theta1 = lin_reg(x_years, frac)
+    theta1 = gm.lin_reg(x_years, frac)[0]
     x1 = [x_years[0], x_years[-1]]
     y1 = [theta1[0] + x1[0]*theta1[1], theta1[0]+x1[1]*theta1[1]]
     
     # using all of the data after 1980 (due to the few samples from earlier dates)
-    theta2 = lin_reg(x_years[15:], frac[15:])
+    theta2 = gm.lin_reg(x_years[15:], frac[15:])[0]
     x2 = [x_years[15], x_years[-1]]
     y2 = [theta2[0] + x2[0]*theta2[1], theta2[0]+x2[1]*theta2[1]]
     
@@ -228,7 +214,7 @@ def gross_gender(data):
 
 def gross_lines(data):
     
-    lines_data = data[["Gross", "Number words female"]].sort_values(by="Gross").values.tolist()
+    lines_data = data[["Gross", "Number words female"]].sort_values(by="Number words female").values.tolist()
     
     gross = [entry[0] for entry in lines_data]
     lines = [entry[1] for entry in lines_data]
@@ -236,7 +222,17 @@ def gross_lines(data):
     mu = stat.mean(gross)
     
     plt.figure(6)
-    plt.scatter(gross, lines)
+    plt.grid()
+    plt.scatter(lines, gross)
+    plt.xlabel("Number of lines by female characters")
+    plt.ylabel("Grossing")
+    plt.show()
+    
+    yvals = gm.log_reg(lines, gross)
+    
+    plt.figure(7)
+    plt.plot(lines, yvals)
+    plt.grid()
     plt.show()
     
     # print(lines_data)
