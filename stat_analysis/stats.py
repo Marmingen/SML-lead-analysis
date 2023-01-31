@@ -82,6 +82,9 @@ def bin_gender(data):
     plt.savefig("stat_analysis/graphs/normal.png")
     ########################################################
     
+
+    # LÄGG TILL KONFIDENSINTERVALL
+
     return [male, female]
 
 
@@ -100,6 +103,7 @@ def time_gender(data):
         except:
             dict_years[entry[0]] = [0,0]
             dict_years[entry[0]][gender_index] = 1
+
     
     # makes two Y-lists
     males = [entry[0] for entry in dict_years.values()]
@@ -214,26 +218,40 @@ def gross_gender(data):
 
 def gross_lines(data):
     
-    lines_data = data[["Gross", "Number words female"]].sort_values(by="Number words female").values.tolist()
+    lines_data_F = data[["Gross", "Number words female"]].sort_values(by="Number words female").values.tolist()
+    lines_data_M = data[["Gross", "Number words male"]].sort_values(by="Number words male").values.tolist()
     
-    gross = [entry[0] for entry in lines_data]
-    lines = [entry[1] for entry in lines_data]
+    gross_F = [entry[0] for entry in lines_data_F]
+    lines_F = [entry[1] for entry in lines_data_F]
     
-    mu = stat.mean(gross)
+    gross_M = [entry[0] for entry in lines_data_M]
+    lines_M = [entry[1] for entry in lines_data_M]
+    
+    mu = stat.mean(gross_F)
+    mu2 = stat.mean(gross_M)
     
     plt.figure(6)
     plt.grid()
-    plt.scatter(lines, gross)
+    plt.scatter(lines_F, gross_F)
     plt.xlabel("Number of lines by female characters")
     plt.ylabel("Grossing")
     plt.show()
     
-    yvals = gm.log_reg(lines, gross)
+    yvals_F = gm.log_reg(lines_F, gross_F)
+    yvals2_M = gm.log_reg(lines_M, gross_M)
     
     plt.figure(7)
-    plt.plot(lines, yvals)
+    plt.plot(lines_F, yvals_F)
     plt.grid()
     plt.show()
+
+    plt.figure(8)
+    plt.grid()
+    plt.scatter(lines_M, gross_M)
+    plt.xlabel("Number of lines by male characters")
+    plt.ylabel("Grossing")
+    plt.show()
+
     
     # print(lines_data)
 
@@ -248,15 +266,14 @@ def main():
     print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
     print(bar)
     
-    # bin_gender(training_data)
+    #bin_gender(training_data)
     
-    # time_gender(training_data)
+    #time_gender(training_data)
 
-    # gross_gender(training_data)
+    #gross_gender(training_data)
     
     gross_lines(training_data)
     
-    print("hej stina")
 
 ############################################################
 ############################################################
