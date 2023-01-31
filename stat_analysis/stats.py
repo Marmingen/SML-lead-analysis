@@ -245,6 +245,7 @@ def gross_lines(data):
     plt.grid()
     plt.show()
 
+
     plt.figure(8)
     plt.grid()
     plt.scatter(lines_M, gross_M)
