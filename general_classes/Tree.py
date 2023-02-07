@@ -12,10 +12,12 @@ class Tree():
     
     # Node class for handling the split info storage and predictions
     class Node:
-        def __init__(self, train_data, left=None, right=None):
+        def __init__(self, train_data, left=None, right=None, depth = 0):
             self.train_data = train_data
             self.left = left
             self.right = right
+            self.depth = depth
+            
             self.leaf = False
             self._majority()
         
@@ -45,11 +47,10 @@ class Tree():
         self.name = name
         self.max_depth = max_depth
         
-        self.depth = 0
         self.root = self.Node(train_data)
         
     def __str__(self):
-        return f"{self.name} | depth: {self.depth}"
+        return f"{self.name} | depth: {0}"
     
     def __repr__(self):
         return f"{self.name}"
@@ -62,11 +63,9 @@ class Tree():
         def calc_Q(pi_M, pi_F):
             return -(pi_M*log(pi_M) + pi_F*log(pi_F))
         
-        self.depth += 1
-        
         # if depth is reached or split is perfect, leaf
         
-        if self.depth == self.max_depth or R.leaf:
+        if R.depth == self.max_depth or R.leaf:
             R.leaf = True
         else:
             
@@ -110,10 +109,10 @@ class Tree():
             
             R.limit = best_set
             
-            R.left = self.Node(T1_best)
+            R.left = self.Node(T1_best, depth=R.depth+1)
             self._split(R.left)
             
-            R.right = self.Node(T2_best)
+            R.right = self.Node(T2_best, depth=R.depth+1)
             self._split(R.right)
     
 
