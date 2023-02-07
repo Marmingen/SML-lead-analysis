@@ -110,6 +110,7 @@ def time_gender(data):
             dict_years[entry[0]][gender_index] += 1
         except:
             dict_years[entry[0]] = [0,0]
+
             dict_years[entry[0]][gender_index] = 1
 
     
@@ -226,7 +227,8 @@ def gross_gender(data):
     two_sample_t_test(y_female, y_male)
     print(bar)
 
-def two_sample_t_test(data1, data2):
+
+def two_sample_t_test(data2, data1):
     """
     Calculates p-value for two sample t test
     """
@@ -247,7 +249,7 @@ def two_sample_t_test(data1, data2):
     
     p_value = (1 - t.cdf(abs(t_stat), df)) * 2 # p-value
 
-
+    
     print("\n\nTWO SAMPLE T-TEST\n")
     print(f"p-value: \t {p_value}\n")
 
@@ -256,6 +258,7 @@ def two_sample_t_test(data1, data2):
     else:
         print("Cant reject null hypotheses at 5 % level: \t Distributions could be the same")
 
+    print(f"mean1:{mean1} mean2:{mean2} std1:{std1} std2:{std2}")
     return p_value
 
 
