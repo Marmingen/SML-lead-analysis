@@ -7,6 +7,8 @@
 
 import sys
 sys.path.append(str(sys.path[0][:-14]))
+from sys import platform
+
 
 import general_methods as gm
 import matplotlib.pyplot as plt
@@ -15,6 +17,11 @@ import numpy as np
 import statistics as stat
 import os
 import scipy
+import os
+
+dirname = os.getcwd()
+dirname = dirname.replace("/stat_analysis", "")
+
 
 ############################################################
 ############################################################
@@ -230,7 +237,7 @@ def two_sample_t_test(data1, data2):
 
     df = dof1 + dof2
     alpha = 0.05
-    cr = t.ppf
+     
 
 
 
@@ -285,9 +292,14 @@ def gross_lines(data):
 ## MAIN
           
 def main():
-    
-    training_data = pd.read_csv("data/train.csv")
-    
+    if platform == "darwin":
+        training_data = pd.read_csv(os.path.join(dirname, "data/train.csv"))
+        print("dat")
+
+    else:
+        print("dattt")
+        training_data = pd.read_csv("data/train.csv") 
+
     print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
     print(bar)
     
