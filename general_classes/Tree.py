@@ -12,7 +12,7 @@ class Tree():
     
     # Node class for handling the split info storage and predictions
     class Node:
-        def __init__(self, train_data, left=None, right=None, depth = 0):
+        def __init__(self, train_data, left=None, right=None, depth = 1):
             self.train_data = train_data
             self.left = left
             self.right = right
@@ -22,8 +22,8 @@ class Tree():
             self._majority()
         
         def _majority(self):
-            n_F = self.train_data[self.train_data["Lead"] == "Female"]
-            n_M = self.train_data[self.train_data["Lead"] == "Male"]
+            n_F = len(self.train_data[self.train_data["Lead"] == "Female"])
+            n_M = len(self.train_data[self.train_data["Lead"] == "Male"])
             
             # bias towards male leads due to higher probability
             if n_F>n_M:
@@ -42,10 +42,11 @@ class Tree():
         #     if self.right:
         #         yield from self.right
                 
-    def __init__(self, train_data, name="unnamed", max_depth=5):
+    def __init__(self, train_data, name="unnamed", max_depth=5, disp=True):
         self.train_data = train_data
         self.name = name
         self.max_depth = max_depth
+        self.disp = disp
         
         self.root = self.Node(train_data)
         
@@ -56,30 +57,46 @@ class Tree():
         return f"{self.name}"
     
     def train(self):
+        self.total = 0
         self._split(self.root)
     
     def _split(self, R):
         
         def calc_Q(pi_M, pi_F):
-            return -(pi_M*log(pi_M) + pi_F*log(pi_F))
+            try:
+                return -(pi_M*log(pi_M) + pi_F*log(pi_F))
+            except ValueError:
+                return 0
+        
+        def calc_pi(T_set, n, gender):
+            try:
+                return T_set.Lead.value_counts()[gender]/n
+            except KeyError:
+                return 0
         
         # if depth is reached or split is perfect, leaf
         
         if R.depth == self.max_depth or R.leaf:
             R.leaf = True
         else:
-            
+            # initializing variables
             T1_best = None
             T2_best = None
-            
             lowest_amin = 100
             best_set = []
             
             T = R.train_data
             
-            for x_i in T:                
-                for s in x_i:
-                    
+            for x_i in T:
+                if x_i == "Lead":
+                    continue
+                
+                if self.disp:
+                    self.total += 1
+                    print(f'\rTotal variables checked: {self.total}', end = "\r")
+                
+                for s in T[x_i]:
+
                     T1 = T[T[x_i] < s]
                     T2 = T[T[x_i] >= s]
                     
@@ -89,11 +106,11 @@ class Tree():
                     if n1*n2 == 0:
                         continue
                     
-                    pi_1M = T1.Lead.value_counts()["Male"]/n1
-                    pi_1F = T1.Lead.value_counts()["Female"]/n1
+                    pi_1M = calc_pi(T1, n1, "Male")
+                    pi_1F = calc_pi(T1, n1, "Female")
                     
-                    pi_2M = T2.Lead.value_counts()["Male"]/n2
-                    pi_2F = T2.Lead.value_counts()["Female"]/n2
+                    pi_2M = calc_pi(T2, n2, "Male")
+                    pi_2F = calc_pi(T2, n2, "Female")
                     
                     Q1 = calc_Q(pi_1M, pi_1F)
                     Q2 = calc_Q(pi_2M, pi_2F)
@@ -115,6 +132,17 @@ class Tree():
             R.right = self.Node(T2_best, depth=R.depth+1)
             self._split(R.right)
     
-
-    
-    
+    def predict(self, data):
+        
+        R = self.root
+        
+        while not R.leaf:
+            val = data[R.limit[0]]
+            lim = R.limit[1]
+            
+            if val < lim:
+                R = R.left
+            else:
+                R = R.right
+            
+        return R.probable
