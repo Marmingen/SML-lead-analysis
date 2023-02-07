@@ -246,12 +246,16 @@ def two_sample_t_test(data1, data2):
     cr = np.abs(t.ppf((1-alpha)/2,df)) # critical region
     
     p_value = (1 - t.cdf(abs(t_stat), df)) * 2 # p-value
-    print(f"p-value: \t {p_value}")
+
+
+    print("\n\nTWO SAMPLE T-TEST\n")
+    print(f"p-value: \t {p_value}\n")
 
     if p_value <= alpha:
         print("Reject null hypotheses at 5 % level: \t Distributions are not the same")
     else:
         print("Cant reject null hypotheses at 5 % level: \t Distributions could be the same")
+
     return p_value
 
 
@@ -305,7 +309,7 @@ def gross_lines(data):
 ## MAIN
           
 def main():
-    if platform == "darwin":
+    if platform == "darwin": # check for mac os
         training_data = pd.read_csv(os.path.join(dirname, "data/train.csv"))
 
     else:
