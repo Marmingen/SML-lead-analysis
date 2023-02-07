@@ -87,7 +87,7 @@ def bin_gender(data):
     plt.xlabel("Binary gender [Male,Female]=[0,1]")
     plt.ylabel("Probability density")
     plt.title("Patriarchy            Equality            Matriarchy")
-    plt.savefig("stat_analysis/graphs/normal.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/normal.png"))
     ########################################################
     
 
@@ -149,7 +149,7 @@ def time_gender(data):
     plt.legend(["Male", "Female"])
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Amount of movies")
-    plt.savefig("stat_analysis/graphs/numbers.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/numbers.png"))
     
     # the fraction of female leads, and two linear regressions   
     plt.figure(1)
@@ -160,7 +160,7 @@ def time_gender(data):
     plt.title("Fraction of female leads over time")
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Fraction of female leads [%]")
-    plt.savefig("stat_analysis/graphs/fraction.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/fraction.png"))
     
     # the total number of analyzed movies per year
     plt.figure(2)
@@ -170,7 +170,7 @@ def time_gender(data):
     plt.title("Total amount of analyzed movies over time")
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Total amount of movies in data")
-    plt.savefig("stat_analysis/graphs/amount.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/amount.png"))
     
     
 def gross_gender(data):
@@ -223,8 +223,8 @@ def gross_gender(data):
     print(f"{fsi_str:{'.'}<30}{f' {round(sigma_female,2)}':{'.'}>30}\n")
     print(f"{mmu_str:{'.'}<30}{f' {round(mu_male,2)}':{'.'}>30}")
     print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
-    print(bar)
     two_sample_t_test(y_female, y_male)
+    print(bar)
 
 def two_sample_t_test(data1, data2):
     """
@@ -318,13 +318,13 @@ def main():
     print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
     print(bar)
     
-    #bin_gender(training_data)
+    bin_gender(training_data)
     
-    #time_gender(training_data)
+    time_gender(training_data)
 
     gross_gender(training_data)
     
-    #gross_lines(training_data)
+    gross_lines(training_data)
     
 
 ############################################################
