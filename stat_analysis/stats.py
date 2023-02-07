@@ -7,6 +7,8 @@
 
 import sys
 sys.path.append(str(sys.path[0][:-14]))
+from sys import platform
+
 
 import general_methods as gm
 import matplotlib.pyplot as plt
@@ -14,7 +16,12 @@ import pandas as pd
 import numpy as np
 import statistics as stat
 import os
-import math
+from scipy.stats import t
+import os
+
+dirname = os.getcwd()
+dirname = dirname.replace("/stat_analysis", "")
+
 
 ############################################################
 ############################################################
@@ -80,9 +87,12 @@ def bin_gender(data):
     plt.xlabel("Binary gender [Male,Female]=[0,1]")
     plt.ylabel("Probability density")
     plt.title("Patriarchy            Equality            Matriarchy")
-    plt.savefig("stat_analysis/graphs/normal.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/normal.png"))
     ########################################################
     
+
+    # LÄGG TILL KONFIDENSINTERVALL
+
     return [male, female]
 
 
@@ -100,7 +110,9 @@ def time_gender(data):
             dict_years[entry[0]][gender_index] += 1
         except:
             dict_years[entry[0]] = [0,0]
+
             dict_years[entry[0]][gender_index] = 1
+
     
     # makes two Y-lists
     males = [entry[0] for entry in dict_years.values()]
@@ -138,7 +150,7 @@ def time_gender(data):
     plt.legend(["Male", "Female"])
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Amount of movies")
-    plt.savefig("stat_analysis/graphs/numbers.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/numbers.png"))
     
     # the fraction of female leads, and two linear regressions
     plt.figure(1)
@@ -149,7 +161,7 @@ def time_gender(data):
     plt.title("Fraction of female leads over time")
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Fraction of female leads [%]")
-    plt.savefig("stat_analysis/graphs/fraction.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/fraction.png"))
     
     # the total number of analyzed movies per year
     plt.figure(2)
@@ -159,7 +171,7 @@ def time_gender(data):
     plt.title("Total amount of analyzed movies over time")
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Total amount of movies in data")
-    plt.savefig("stat_analysis/graphs/amount.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/amount.png"))
     
     
 def gross_gender(data):
@@ -197,7 +209,8 @@ def gross_gender(data):
     plt.xlabel("Grossing")
     plt.legend()
     plt.grid()
-    plt.savefig("stat_analysis/graphs/grossing.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/grossing.png"))
+
     ########################################################
     
     fmu_str = "female mean [\u03BC]: "
@@ -211,32 +224,89 @@ def gross_gender(data):
     print(f"{fsi_str:{'.'}<30}{f' {round(sigma_female,2)}':{'.'}>30}\n")
     print(f"{mmu_str:{'.'}<30}{f' {round(mu_male,2)}':{'.'}>30}")
     print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
+    two_sample_t_test(y_female, y_male)
     print(bar)
+
+
+def two_sample_t_test(data2, data1):
+    """
+    Calculates p-value for two sample t test
+    """
+
+    mean1, mean2 = np.mean(data1), np.mean(data2) # mean
+    std1, std2 = np.std(data1), np.std(data2) # standard deviation
+    n1, n2 = len(data1), len(data2) # sample size
+    dof1, dof2 = n1 - 1, n2 - 1 # degree of freedom
+
+    se1, se2 = std1/np.sqrt(n1), std2/np.sqrt(n2) # standard errors
+    sed = np.sqrt(se1**2 + se2**2) # standard error on the difference between samples
+     
+    t_stat = (mean1 - mean2) / sed # t-statistic
+
+    df = dof1 + dof2 # total degree of freedom
+    alpha = 0.05 # confidence level
+    cr = np.abs(t.ppf((1-alpha)/2,df)) # critical region
+    
+    p_value = (1 - t.cdf(abs(t_stat), df)) * 2 # p-value
+
+    
+    print("\n\nTWO SAMPLE T-TEST\n")
+    print(f"p-value: \t {p_value}\n")
+
+    if p_value <= alpha:
+        print("Reject null hypotheses at 5 % level: \t Distributions are not the same")
+    else:
+        print("Cant reject null hypotheses at 5 % level: \t Distributions could be the same")
+
+    print(f"mean1:{mean1} mean2:{mean2} std1:{std1} std2:{std2}")
+    return p_value
+
+
+
 
 def gross_lines(data):
     
-    lines_data = data[["Gross", "Number words female"]].sort_values(by="Number words female").values.tolist()
+    lines_data_F = data[["Gross", "Number words female"]].sort_values(by="Number words female").values.tolist()
+    lines_data_M = data[["Gross", "Number words male"]].sort_values(by="Number words male").values.tolist()
     
-    gross = [entry[0] for entry in lines_data]
-    lines = [entry[1] for entry in lines_data]
+    gross_F = [entry[0] for entry in lines_data_F]
+    lines_F = [entry[1] for entry in lines_data_F]
     
-    mu = stat.mean(gross)
+    gross_M = [entry[0] for entry in lines_data_M]
+    lines_M = [entry[1] for entry in lines_data_M]
+    
+    mu = stat.mean(gross_F)
+    mu2 = stat.mean(gross_M)
     
     plt.figure(6)
     plt.grid()
-    plt.scatter(lines, gross)
+    plt.scatter(lines_F, gross_F)
     plt.xlabel("Number of lines by female characters")
     plt.ylabel("Grossing")
     plt.show()
     
-    [xvals, yvals] = [[x for x,y in zip(lines,gross) if y != 0],[math.log(x) for x in gross if x != 0]]
+    yvals_F = gm.log_reg(lines_F, gross_F)
+    yvals2_M = gm.log_reg(lines_M, gross_M)
     
     plt.figure(7)
-    plt.scatter(xvals,yvals)
+    plt.plot(lines_F, yvals_F)
+    plt.grid()
     plt.show()
+
+
+    plt.figure(8)
+    plt.grid()
+    plt.scatter(lines_M, gross_M)
+    plt.xlabel("Number of lines by male characters")
+    plt.ylabel("Grossing")
+    plt.show()
+
     
     # print(lines_data)
     
+
+    
+
 def grossing_age(data):
     gross_data = data[["Gross", "Mean Age Male", "Mean Age Female"]].values.tolist()
     
@@ -299,17 +369,20 @@ def grossing_age(data):
 ## MAIN
           
 def main():
-    
-    training_data = pd.read_csv("data/train.csv")
-    
+    if platform == "darwin": # check for mac os
+        training_data = pd.read_csv(os.path.join(dirname, "data/train.csv"))
+
+    else:
+        training_data = pd.read_csv("data/train.csv") 
+
     print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
     print(bar)
     
-    # bin_gender(training_data)
+    bin_gender(training_data)
     
-    # time_gender(training_data)
+    time_gender(training_data)
 
-    # gross_gender(training_data)
+    gross_gender(training_data)
     
     # gross_lines(training_data)
     
