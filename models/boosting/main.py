@@ -24,6 +24,7 @@ clear = lambda : os.system("cls")
 
 def main():
     path_data = dirname + "/data/train.csv"
+
     DataPrep = DataPreperation(path_data)
     train_set, test_set = DataPrep.create_data_sets()
 
