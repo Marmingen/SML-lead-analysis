@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 import statistics as stat
 import os
-import scipy
+from scipy.stats import t
 import os
 
 dirname = os.getcwd()
@@ -208,7 +208,8 @@ def gross_gender(data):
     plt.xlabel("Grossing")
     plt.legend()
     plt.grid()
-    plt.savefig("stat_analysis/graphs/grossing.png")
+    plt.savefig(os.path.join(dirname, "stat_analysis/graphs/grossing.png"))
+
     ########################################################
     
     fmu_str = "female mean [\u03BC]: "
@@ -223,8 +224,13 @@ def gross_gender(data):
     print(f"{mmu_str:{'.'}<30}{f' {round(mu_male,2)}':{'.'}>30}")
     print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
     print(bar)
+    two_sample_t_test(y_female, y_male)
 
 def two_sample_t_test(data1, data2):
+    """
+    Calculates p-value for two sample t test
+    """
+
     mean1, mean2 = np.mean(data1), np.mean(data2) # mean
     std1, std2 = np.std(data1), np.std(data2) # standard deviation
     n1, n2 = len(data1), len(data2) # sample size
@@ -235,11 +241,18 @@ def two_sample_t_test(data1, data2):
      
     t_stat = (mean1 - mean2) / sed # t-statistic
 
-    df = dof1 + dof2
-    alpha = 0.05
-     
+    df = dof1 + dof2 # total degree of freedom
+    alpha = 0.05 # confidence level
+    cr = np.abs(t.ppf((1-alpha)/2,df)) # critical region
+    
+    p_value = (1 - t.cdf(abs(t_stat), df)) * 2 # p-value
+    print(f"p-value: \t {p_value}")
 
-
+    if p_value <= alpha:
+        print("Reject null hypotheses at 5 % level: \t Distributions are not the same")
+    else:
+        print("Cant reject null hypotheses at 5 % level: \t Distributions could be the same")
+    return p_value
 
 
 
@@ -294,10 +307,8 @@ def gross_lines(data):
 def main():
     if platform == "darwin":
         training_data = pd.read_csv(os.path.join(dirname, "data/train.csv"))
-        print("dat")
 
     else:
-        print("dattt")
         training_data = pd.read_csv("data/train.csv") 
 
     print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
@@ -307,9 +318,9 @@ def main():
     
     #time_gender(training_data)
 
-    #gross_gender(training_data)
+    gross_gender(training_data)
     
-    gross_lines(training_data)
+    #gross_lines(training_data)
     
 
 ############################################################
