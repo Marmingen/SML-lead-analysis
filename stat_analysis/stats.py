@@ -1,7 +1,7 @@
 ############################################################
-
-
-
+#
+#
+#
 ############################################################
 ## IMPORTS
 
@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 import statistics as stat
 import os
+import math
 
 ############################################################
 ############################################################
@@ -68,7 +69,7 @@ def bin_gender(data):
     x = list(np.linspace(0,1,200))
     y = [N.pdf(xt) for xt in x]
     
-    # PLOTTING    
+    # PLOTTING
     ########################################################
     plt.figure(3)
     plt.plot(x,y)
@@ -125,7 +126,7 @@ def time_gender(data):
     x2 = [x_years[15], x_years[-1]]
     y2 = [theta2[0] + x2[0]*theta2[1], theta2[0]+x2[1]*theta2[1]]
     
-    # PLOTTING    
+    # PLOTTING
     ########################################################
 
     # the number of male and female leads
@@ -139,7 +140,7 @@ def time_gender(data):
     plt.ylabel("Amount of movies")
     plt.savefig("stat_analysis/graphs/numbers.png")
     
-    # the fraction of female leads, and two linear regressions   
+    # the fraction of female leads, and two linear regressions
     plt.figure(1)
     plt.plot(x_years, frac, "--k", x1, y1, "r", x2, y2, "b")
     
@@ -228,14 +229,70 @@ def gross_lines(data):
     plt.ylabel("Grossing")
     plt.show()
     
-    yvals = gm.log_reg(lines, gross)
+    [xvals, yvals] = [[x for x,y in zip(lines,gross) if y != 0],[math.log(x) for x in gross if x != 0]]
     
     plt.figure(7)
-    plt.plot(lines, yvals)
-    plt.grid()
+    plt.scatter(xvals,yvals)
     plt.show()
     
     # print(lines_data)
+    
+def grossing_age(data):
+    gross_data = data[["Gross", "Mean Age Male", "Mean Age Female"]].values.tolist()
+    
+    gross = [entry[0] for entry in gross_data]
+    
+    male_data = [entry[1] for entry in gross_data]
+    
+    female_data = [entry[2] for entry in gross_data]
+    
+    mu_male = stat.mean(male_data)
+    mu_female = stat.mean(female_data)
+    
+    sigma_male = stat.stdev(male_data)
+    
+    sigma_female = stat.stdev(female_data)
+    
+    N_male = stat.NormalDist(mu_male, sigma_male)
+    N_female = stat.NormalDist(mu_female, sigma_female)
+
+    x_male = np.linspace(0,male_data[-1],200)
+    y_male = [N_male.pdf(x) for x in x_male]
+    
+    x_female = np.linspace(0,female_data[-1],200)
+    y_female = [N_female.pdf(x) for x in x_female]
+    
+    # PLOTTING    
+    ########################################################
+    plt.figure(4)
+    
+    plt.scatter(gross, male_data)
+    plt.scatter(gross, female_data)
+    
+    plt.show()
+    # plt.plot(x_female, y_female, '--r', label='Female')
+    # plt.plot(x_male, y_male, '--b', label='Male')
+    # plt.axvline(x = mu_female, color = 'r', linestyle=":")
+    # plt.axvline(x = mu_male, color = 'b', linestyle=":")
+    # plt.title("Normal distribution of the grossing based on lead gender")
+    # plt.xlabel("Grossing")
+    # plt.legend()
+    # plt.grid()
+    # plt.savefig("stat_analysis/graphs/grossing.png")
+    ########################################################
+    
+    fmu_str = "female mean [\u03BC]: "
+    fsi_str = "female strd deviation [\u03C3]: "
+    mmu_str = "male mean [\u03BC]: "
+    msi_str = "male strd deviation [\u03C3]: "
+    
+    print("\nGROSSING BY GENDER")
+    print(bar)
+    print(f"{fmu_str:{'.'}<30}{f' {round(mu_female,2)}':{'.'}>30}")
+    print(f"{fsi_str:{'.'}<30}{f' {round(sigma_female,2)}':{'.'}>30}\n")
+    print(f"{mmu_str:{'.'}<30}{f' {round(mu_male,2)}':{'.'}>30}")
+    print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
+    print(bar)
 
 ############################################################
 ############################################################
@@ -254,9 +311,9 @@ def main():
 
     # gross_gender(training_data)
     
-    gross_lines(training_data)
+    # gross_lines(training_data)
     
-    print("hej stina")
+    grossing_age(training_data)
 
 ############################################################
 ############################################################
