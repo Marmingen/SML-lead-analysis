@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 import statistics as stat
 import os
+import scipy
 
 ############################################################
 ############################################################
@@ -216,6 +217,26 @@ def gross_gender(data):
     print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
     print(bar)
 
+def two_sample_t_test(data1, data2):
+    mean1, mean2 = np.mean(data1), np.mean(data2) # mean
+    std1, std2 = np.std(data1), np.std(data2) # standard deviation
+    n1, n2 = len(data1), len(data2) # sample size
+    dof1, dof2 = n1 - 1, n2 - 1 # degree of freedom
+
+    se1, se2 = std1/np.sqrt(n1), std2/np.sqrt(n2) # standard errors
+    sed = np.sqrt(se1**2 + se2**2) # standard error on the difference between samples
+     
+    t_stat = (mean1 - mean2) / sed # t-statistic
+
+    df = dof1 + dof2
+    alpha = 0.05
+    cr = t.ppf
+
+
+
+
+
+
 def gross_lines(data):
     
     lines_data_F = data[["Gross", "Number words female"]].sort_values(by="Number words female").values.tolist()
@@ -255,6 +276,9 @@ def gross_lines(data):
 
     
     # print(lines_data)
+
+
+    
 
 ############################################################
 ############################################################
