@@ -26,9 +26,6 @@ def main():
     path_data = dirname + "/data/train.csv"
     DataPrep = DataPreperation(path_data)
     train_set, test_set = DataPrep.create_data_sets()
-    print(train_set)
-    print(test_set)
-
 
 
 
