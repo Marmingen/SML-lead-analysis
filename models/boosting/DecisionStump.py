@@ -1,5 +1,5 @@
 import numpy as np
 
-class DecisionStump:
+class DecisionStump():
     def __init__(self):
         pass

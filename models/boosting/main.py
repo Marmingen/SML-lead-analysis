@@ -11,6 +11,11 @@ sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
 dirname = dirname.replace("/models/boosting", "")
 
+sys.path.insert(1,os.path.join(dirname, "general_classes"))
+
+from DataPreperation import DataPreperation
+
+
 ### GLOBALS ###
 clear = lambda : os.system("cls")
 
@@ -18,7 +23,12 @@ clear = lambda : os.system("cls")
 ### MAIN ###
 
 def main():
-    pass
+    path_data = dirname + "/data/train.csv"
+    DataPrep = DataPreperation(path_data)
+    train_set, test_set = DataPrep.create_data_sets()
+    print(train_set)
+    print(test_set)
+
 
 
 
