@@ -25,7 +25,7 @@ class DataPreperation():
                 self.data = pd.read_csv(os.path.join(dirname, path_data)) 
             else:
                 self.data = pd.read_csv(path_data)
-        except:
+        except OSError as e:
             print("FileNotFoundError: [Errno 2] No such file or directory")
 
         self.x_length = self.data.shape[0]
@@ -50,6 +50,8 @@ class DataPreperation():
         # CLEAR COLUMNS AND PREPARE DATA
 
         return Y_train, X_train, X_test, Y_test
+
+    def __gender_to_bin(self):
 
         
     
