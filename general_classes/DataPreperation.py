@@ -38,24 +38,26 @@ class DataPreperation():
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
+        Y_train[Y_train=="Female"] = -1
+        Y_train[Y_train=="Male"] = 1
         X_train = train.drop("Lead", axis=1)
         X_test = test["Lead"]
         Y_test = test.drop("Lead", axis=1)
+        Y_test[Y_test=="Female"] = -1
+        Y_test[Y_test=="Male"] = 1
+
 
         # CLEAR COLUMNS AND PREPARE DATA
 
         return Y_train, X_train, X_test, Y_test
 
         
-        
-
-
-
+    
 def main():
     path = dirname + "/data/train.csv"
     DataPrep = DataPreperation(path)
-    print(DataPrep.X_train)
     print(DataPrep.Y_train)
+    print(DataPrep.X_train)
 
 if __name__ == "__main__":
     main()
