@@ -19,6 +19,11 @@ from DataPreperation import DataPreperation
 ### GLOBALS ###
 clear = lambda : os.system("cls")
 
+def accuracy(y_true, y_pred):
+    accuracy = np.sum(y_true == y_pred) / len(y_true)
+    return accuracy
+
+
 
 
 ### MAIN ###
@@ -27,7 +32,18 @@ def main():
     path_data = dirname + "/data/train.csv"
 
     DataPrep = DataPreperation(path_data)
-    train_set, test_set = DataPrep.create_data_sets()
+    X = DataPrep.X_train
+    Y = DataPrep.Y_train
+    X_test = DataPrep.X_test
+    Y_test = DataPrep.Y_test
+    
+
+    clf = AdaBoost(n_clf=5)
+    clf.fit(X, Y)
+    y_pred = clf.predict(X_test)
+    acc = accuracy(y_test, y_pred)
+
+    print(f"Accuracy: \t{acc}")
 
 
 
