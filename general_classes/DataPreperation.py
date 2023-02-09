@@ -38,13 +38,15 @@ class DataPreperation():
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
-        Y_train[Y_train=="Female"] = -1
-        Y_train[Y_train=="Male"] = 1
+        Y_train.replace("Female", -1)
+        Y_train.replace("Male", 1)
         X_train = train.drop("Lead", axis=1)
-        X_test = test["Lead"]
-        Y_test = test.drop("Lead", axis=1)
-        Y_test[Y_test=="Female"] = -1
-        Y_test[Y_test=="Male"] = 1
+
+
+        Y_test = test["Lead"]
+        Y_test.replace("Female", -1)
+        Y_test.replace("Male", 1)
+        X_test = test.drop("Lead", axis=1)
 
 
         # CLEAR COLUMNS AND PREPARE DATA
