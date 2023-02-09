@@ -5,7 +5,6 @@ import os
 
 from DecisionStump import DecisionStump
 from AdaBoost import AdaBoost
-from DataPreperation import DataPreperation
 
 ### CHECKING FOLDERS ###
 sys.path.append(str(sys.path[0][:-14]))
@@ -13,7 +12,7 @@ dirname = os.getcwd()
 dirname = dirname.replace("/models/boosting", "")
 
 sys.path.insert(1,os.path.join(dirname, "general_classes"))
-
+from DataPreperation import DataPreperation
 ### GLOBALS ###
 clear = lambda : os.system("cls")
 

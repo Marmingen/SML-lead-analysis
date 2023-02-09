@@ -52,7 +52,7 @@ class DataPreperation():
         return Y_train, X_train, X_test, Y_test
 
     def __gender_to_bin(self):
-
+        pass
         
     
 def main():
