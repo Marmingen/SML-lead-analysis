@@ -28,25 +28,21 @@ def main():
     path_data = dirname + "/data/train.csv"
 
     DataPrep = DataPreperation(path_data)
-    X_train = DataPrep.X_train
-    Y_train = DataPrep.Y_train
-    X_test = DataPrep.X_test
-    Y_test = DataPrep.Y_test
-    print("Check 1")
-
+    # Add the to.numpy() converter in the adaboost. Check if it already is numpy or not
+    X_train = DataPrep.X_train.to_numpy()
+    Y_train = DataPrep.Y_train.to_numpy()
+    X_test = DataPrep.X_test.to_numpy()
+    Y_test = DataPrep.Y_test.to_numpy()
+    
     # AdaBoost ML algortihm using 5 weak classifiers
 
     clf = AdaBoost(n_clf=5)
-    print("Check 2")
     clf.fit(X_train, Y_train)
-    print("Check 3")
     y_pred = clf.predict(X_test)
-    print("Check 4")
     acc = accuracy(Y_test, y_pred)
-    print("Check 5")
+    
     print(f"Accuracy: \t{acc}")
-    print("Check 6")
-
+    # Error due to the fact that AdaBoost class assumes inputs are np-arrays. Mine are pandas dataframes
 if __name__ == "__main__":
     main()
 
