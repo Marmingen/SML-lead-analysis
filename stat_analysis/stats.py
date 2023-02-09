@@ -9,7 +9,6 @@ import sys
 sys.path.append(str(sys.path[0][:-14]))
 from sys import platform
 
-
 import general_methods as gm
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -17,7 +16,6 @@ import numpy as np
 import statistics as stat
 import os
 from scipy.stats import t
-import os
 
 dirname = os.getcwd()
 dirname = dirname.replace("/stat_analysis", "")
