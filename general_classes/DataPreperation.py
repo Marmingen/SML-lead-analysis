@@ -18,8 +18,8 @@ clear = lambda : os.system("cls")
 
 
 class DataPreperation():
-    def __init__(self, path_data):
-
+    def __init__(self, path_data, numpy_bool = False):
+        self.numpy_bool = numpy_bool
         try:
             if sys.platform == "darwin": # for macOS
                 self.data = pd.read_csv(os.path.join(dirname, path_data)) 
@@ -38,28 +38,26 @@ class DataPreperation():
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
-        Y_train[Y_train=="Female"] = -1
-        Y_train[Y_train=="Male"] = 1
+        Y_train = Y_train.replace("Female", -1)
+        Y_train = Y_train.replace("Male", 1)
         X_train = train.drop("Lead", axis=1)
-        X_test = test["Lead"]
-        Y_test = test.drop("Lead", axis=1)
-        Y_test[Y_test=="Female"] = -1
-        Y_test[Y_test=="Male"] = 1
 
+
+        Y_test = test["Lead"]
+        Y_test = Y_test.replace("Female", -1)
+        Y_test = Y_test.replace("Male", 1)
+        X_test = test.drop("Lead", axis=1)
+
+        # add visualization methods
 
         # CLEAR COLUMNS AND PREPARE DATA
 
-        return Y_train, X_train, X_test, Y_test
+        if self.numpy_bool:
+            return Y_train.to_numpy(), X_train.to_numpy(), \
+                    X_test.to_numpy(), Y_test.to_numpy()
+        else:
+            return Y_train, X_train, X_test, Y_test
 
     def __gender_to_bin(self):
-
+        pass
         
-    
-def main():
-    path = dirname + "/data/train.csv"
-    DataPrep = DataPreperation(path)
-    print(DataPrep.Y_train)
-    print(DataPrep.X_train)
-
-if __name__ == "__main__":
-    main()
