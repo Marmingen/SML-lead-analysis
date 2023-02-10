@@ -33,7 +33,7 @@ class DataPreperation():
 
 
     def create_data_sets(self):
-        train = self.data.sample(frac = .7, random_state=200)
+        train = self.data.sample(frac = .7, random_state=10)
         test = self.data.drop(train.index)
 
         # CLEAR COLUMNS AND PREPARE DATA

@@ -1,0 +1,26 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+graph [ranksep=equally, splines=polyline] ;
+edge [fontname="helvetica"] ;
+0 [label="Number words female <= 51.5\ngini = 0.378\nsamples = 100.0%\nvalue = [0.253, 0.747]\nclass = Male", fillcolor="#7cbeee"] ;
+1 [label="gini = 0.0\nsamples = 2.5%\nvalue = [1.0, 0.0]\nclass = Female", fillcolor="#e58139"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="Number of female actors <= 3.5\ngini = 0.359\nsamples = 97.5%\nvalue = [0.234, 0.766]\nclass = Male", fillcolor="#76bbed"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+3 [label="Age Lead <= 29.5\ngini = 0.221\nsamples = 56.5%\nvalue = [0.127, 0.873]\nclass = Male", fillcolor="#56abe9"] ;
+2 -> 3 ;
+4 [label="gini = 0.466\nsamples = 11.6%\nvalue = [0.369, 0.631]\nclass = Male", fillcolor="#add6f4"] ;
+3 -> 4 ;
+5 [label="gini = 0.12\nsamples = 45.0%\nvalue = [0.064, 0.936]\nclass = Male", fillcolor="#47a4e7"] ;
+3 -> 5 ;
+6 [label="Number of male actors <= 4.5\ngini = 0.472\nsamples = 41.0%\nvalue = [0.383, 0.617]\nclass = Male", fillcolor="#b4daf5"] ;
+2 -> 6 ;
+7 [label="gini = 0.433\nsamples = 8.7%\nvalue = [0.683, 0.317]\nclass = Female", fillcolor="#f1bc95"] ;
+6 -> 7 ;
+8 [label="gini = 0.422\nsamples = 32.3%\nvalue = [0.302, 0.698]\nclass = Male", fillcolor="#8fc7f0"] ;
+6 -> 8 ;
+{rank=same ; 0} ;
+{rank=same ; 2} ;
+{rank=same ; 3; 6} ;
+{rank=same ; 1; 4; 5; 7; 8} ;
+}
