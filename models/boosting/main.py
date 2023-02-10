@@ -12,15 +12,11 @@ dirname = os.getcwd()
 dirname = dirname.replace("/models/boosting", "")
 sys.path.insert(1,os.path.join(dirname, "general_classes"))
 from DataPreperation import DataPreperation
+from Performance import Performance
 
 
 ### GLOBALS ###
 clear = lambda : os.system("cls")
-
-def accuracy(Y_true, Y_pred):
-    accuracy = np.sum(Y_true == Y_pred) / len(Y_true)
-    return accuracy
-
 
 ### MAIN ###
 
@@ -40,8 +36,9 @@ def main():
     clf = AdaBoost(n_clf=5)
     clf.fit(X_train, Y_train)
     y_pred = clf.predict(X_test)
-    acc = accuracy(Y_test, y_pred)
-    plt.show()
+
+    Perfor = Performance(y_pred, Y_test)
+    acc = Perfor.accuracy()
     
     print(f"Accuracy: \t{acc}")
     # Error due to the fact that AdaBoost class assumes inputs are np-arrays. Mine are pandas dataframes

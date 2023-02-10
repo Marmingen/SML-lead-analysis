@@ -19,6 +19,11 @@ clear = lambda : os.system("cls")
 
 class DataPreperation():
     def __init__(self, path_data, numpy_bool = False):
+        """
+        path_data: absolute path to data
+        numpy_bool: convert to numpy.ndarray or keep as pandas
+
+        """
         self.numpy_bool = numpy_bool
         try:
             if sys.platform == "darwin": # for macOS
