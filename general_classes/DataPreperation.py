@@ -18,13 +18,16 @@ clear = lambda : os.system("cls")
 
 
 class DataPreperation():
-    def __init__(self, path_data, numpy_bool = False):
+    def __init__(self, path_data, numpy_bool = False, drop_cols = []):
         """
         path_data: absolute path to data
         numpy_bool: convert to numpy.ndarray or keep as pandas
+        drop_cols: list of columns that should be dropped from dataframe
 
         """
         self.numpy_bool = numpy_bool
+        self.drop_cols = drop_cols
+
         try:
             if sys.platform == "darwin": # for macOS
                 self.data = pd.read_csv(os.path.join(dirname, path_data)) 
@@ -39,6 +42,9 @@ class DataPreperation():
         
 
     def __create_data_sets(self):
+        for _ in self.drop_cols:
+            self.data = self.data.drop(_, axis=1)
+
         train = self.data.sample(frac = .7, random_state=200)
         test = self.data.drop(train.index)
 
@@ -63,6 +69,23 @@ class DataPreperation():
         else:
             return Y_train, X_train, X_test, Y_test
 
-    def __gender_to_bin(self):
+    def __clean_data(self):
         pass
         
+    def SMOTE(self):
+        """
+        Synthetic minority oversampling technique. 
+        Used for oversampling the minority feature: females
+
+        """
+        pass
+
+
+    def visualize(self):
+        pass
+
+    def imbalanced(self):
+        pass
+
+
+
