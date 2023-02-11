@@ -152,8 +152,7 @@ class DataPreparation():
     def visualize(self):
         pass
 
-    def imbalanced(self):
+    def k_fold_cross_val(self):
         pass
-
 
 
