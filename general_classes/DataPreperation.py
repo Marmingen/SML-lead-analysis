@@ -82,7 +82,31 @@ class DataPreperation():
         N: Amount of SMOTE
         k: Number of nearest neighbours
         """
+
+        def __Populate(N, i, nnarray):
+            """
+            (Hidden) Method to generate synthetic samples
+
+            N:
+            i:
+            nnarray:
+            """
+            nonlocal new_index 
+            nonlocal synthetics
+            nonlocal minority_sample
+           
+            while N != 0:
+                nn = randrange(1, k+1)
+
+                for attr in range(num_attrs):
+                    dif = minority_sample[nnarray[nn]][attr] - minority_sample[i][attr]
+                    gap = uniform(0, 1)
+                    synthetics[new_index][attr] = minority_sample[i][attr] + gap * dif
+
+                new_index += 1
+                N -= 1
         
+        # convert to np.ndarray data type
         if not isinstance(self.X_train, np.ndarray):
             sample_x = self.X_train.to_numpy()
             sample_y = self.Y_train.to_numpy()
@@ -90,10 +114,12 @@ class DataPreperation():
             sample_x = self.X_train
             sample_y = self.Y_train
 
+        # get samples of minority class from the training set 
         minority_idx = [i for i in range(0, len(sample_y)) if sample_y[i] == -1]
         minority_sample = [sample_x[i] for i in minority_idx]
 
-        T, num_attrs = sample_x.shape
+        
+        T, num_attrs = sample_x.shape # num_attrs: number of features
 
         if N < 100:
             T = round((N/100) * T)
@@ -106,13 +132,10 @@ class DataPreperation():
         
         for i in range(T):
             #compute k nearest neighbours for i, and save the indeces to nnarray
-            Populate(N, i, nnarray)
+        
+            __Populate(1,1,1)
 
-    def __Populate(self, N, i, nnarray):
-        pass
-
-
-
+        return synthetics
 
 
     def visualize(self):
