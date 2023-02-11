@@ -52,6 +52,7 @@ class AdaBoost():
                         clf.feature_index = feature_indx
 
             epsilon = 1e-16 # don't divide by zero
+
             clf.alpha = 0.5 * np.log((1 - error) / (error + epsilon))
 
             predicts = clf.predict(X)
