@@ -20,10 +20,20 @@ class Tree():
             
             self.leaf = False
             self._majority()
+            
+        def __str__(self):
+            return self.leaf
         
         def _majority(self):
-            n_F = len(self.train_data[self.train_data["Lead"] == "Female"])
-            n_M = len(self.train_data[self.train_data["Lead"] == "Male"])
+            
+            def _count(gender):
+                try:
+                    return len(self.train_data[self.train_data["Lead"] == gender])
+                except TypeError:
+                    return 0
+                
+            n_F = _count("Female")
+            n_M = _count("Male")
             
             # bias towards male leads due to higher probability
             if n_F>n_M:
@@ -35,12 +45,12 @@ class Tree():
             if n_F*n_M == 0:
                 self.leaf = True
             
-        # def __iter__(self):
-        #     if self.left:
-        #         yield from self.left
-        #     yield self.key
-        #     if self.right:
-        #         yield from self.right
+        def __iter__(self):
+            if self.left:
+                yield from self.left
+            yield self.limit
+            if self.right:
+                yield from self.right
                 
     def __init__(self, train_data, name="unnamed", max_depth=5, disp=True):
         self.train_data = train_data
@@ -55,6 +65,18 @@ class Tree():
     
     def __repr__(self):
         return f"{self.name}"
+    
+    def print(self):
+        self._print(self.root)
+
+    def _print(self, R):
+        if R:
+            self._print(R.left)
+            try:
+                print(R.limit, end=' ')
+            except AttributeError:
+                print(R.probable, end=' ')
+            self._print(R.right)
     
     def train(self):
         self.total = 0
@@ -78,28 +100,27 @@ class Tree():
         
         if R.depth == self.max_depth or R.leaf:
             R.leaf = True
+
         else:
             # initializing variables
             T1_best = None
             T2_best = None
-            lowest_amin = 100
+            lowest_amin = 1e6
             best_set = []
             
             T = R.train_data
             
-            for x_i in T:
-                if x_i == "Lead":
-                    continue
+            for x_i in T.drop(columns="Lead"):
+                
+                print(x_i)
                 
                 if self.disp:
                     self.total += 1
                     print(f'\rTotal variables checked: {self.total}', end = "\r")
                 
                 for s in T[x_i]:
-
                     T1 = T[T[x_i] < s]
-                    T2 = T[T[x_i] >= s]
-                    
+                    T2 = T.drop(index=T1.index)
                     n1 = len(T1.index)
                     n2 = len(T2.index)
                     
@@ -115,7 +136,7 @@ class Tree():
                     Q1 = calc_Q(pi_1M, pi_1F)
                     Q2 = calc_Q(pi_2M, pi_2F)
                     
-                    amin = np.argmin(n1*Q1 + n2+Q2)
+                    amin = n1*Q1 + n2+Q2
                     
                     if amin < lowest_amin:
                         lowest_amin = amin

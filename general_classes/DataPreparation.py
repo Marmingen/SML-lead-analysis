@@ -17,8 +17,8 @@ dirname = dirname.replace("/general_classes", "")
 clear = lambda : os.system("cls")
 
 
-class DataPreperation():
-    def __init__(self, path_data, numpy_bool = False, drop_cols = []):
+class DataPreparation():
+    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False):
         """
         path_data: absolute path to data
         numpy_bool: convert to numpy.ndarray or keep as pandas
@@ -52,14 +52,16 @@ class DataPreperation():
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
-        Y_train = Y_train.replace("Female", -1)
-        Y_train = Y_train.replace("Male", 1)
+        if not self.gender:
+            Y_train = Y_train.replace("Female", -1)
+            Y_train = Y_train.replace("Male", 1)
         X_train = train.drop("Lead", axis=1)
 
 
         Y_test = test["Lead"]
-        Y_test = Y_test.replace("Female", -1)
-        Y_test = Y_test.replace("Male", 1)
+        if not self.gender:
+            Y_test = Y_test.replace("Female", -1)
+            Y_test = Y_test.replace("Male", 1)
         X_test = test.drop("Lead", axis=1)
 
         # add visualization methods
