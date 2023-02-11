@@ -37,11 +37,28 @@ def main():
     clf.fit(X_train, Y_train)
     y_pred = clf.predict(X_test)
 
+
+    # Analyze performance
     Perfor = Performance(y_pred, Y_test)
-    acc = Perfor.accuracy()
+    accuracy = Perfor.accuracy()
+    precision = Perfor.precision()
+    recall = Perfor.recall()
+    confusion = Perfor.confusion()
+    f1 = Perfor.f1()
+    cohen = Perfor.cohen()
+    roc = Perfor.roc()
+
+    print("Performance metrix\t\t")
     
-    print(f"Accuracy: \t{acc}")
+    print(f"Accuracy: \t{accuracy}")
+    print(f"Precision: \t{precision}")
+    print(f"Recall: \t{recall}")
+    print(f"Confusion: \t{confusion}")
+    print(f"f1: \t{f1}")
+    print(f"Cohen: \t{cohen}")
+    print(f"Roc: \t{roc}")
     # Error due to the fact that AdaBoost class assumes inputs are np-arrays. Mine are pandas dataframes
+
 if __name__ == "__main__":
     main()
 
