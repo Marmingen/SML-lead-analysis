@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 import sys
 import os
-
+from random import uniform
+from random import randrange
 
 ### CHECKING FOLDERS ###
 
@@ -39,16 +40,10 @@ class DataPreparation():
 
         self.x_length = self.data.shape[0]
         self.y_length = self.data.shape[1]
-        self.Y_train, self.X_train, self.X_test, self.Y_test = self.create_data_sets()
+        self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
         
 
     def __create_data_sets(self):
-        for _ in self.drop_cols:
-            self.data = self.data.drop(_, axis=1)
-
-        train = self.data.sample(frac = .7, random_state=200)
-        
-    def create_data_sets(self):
         train = self.data.sample(frac = .7, random_state=10)
         test = self.data.drop(train.index)
 
