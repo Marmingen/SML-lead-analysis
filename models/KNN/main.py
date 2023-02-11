@@ -56,7 +56,7 @@ def main():
     plt.xlabel('k')
     plt.ylabel('Error')
 
-
+    
     ### 
     ### Calculate the results for different validation sets and take the average ###
 
