@@ -43,6 +43,9 @@ class DataPreparation():
         self.y_length = self.data.shape[1]
         self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
         
+    def get_sets(self):
+        return self.X_train, self.X_test, self.Y_train, self.Y_test
+
     def raw(self):
         X = self.data.drop(columns=['Lead'])
         Y = self.data['Lead']
