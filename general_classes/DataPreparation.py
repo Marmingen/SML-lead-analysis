@@ -27,6 +27,7 @@ class DataPreparation():
         """
         self.numpy_bool = numpy_bool
         self.drop_cols = drop_cols
+        self.gender = gender
 
         try:
             if sys.platform == "darwin": # for macOS
