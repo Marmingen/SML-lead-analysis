@@ -25,7 +25,10 @@ def main():
     path_data = dirname + "/data/train.csv"
     drop_cols = ["Year", "Number words male", "Total words"]
     DataPrep = DataPreparation(path_data, numpy_bool = True, drop_cols = drop_cols, gender=False)
-    Y_train, X_train, X_test, Y_test = DataPrep.create_data_sets()
+    Y_train = DataPrep.Y_train
+    X_train = DataPrep.X_train
+    X_test = DataPrep.X_test
+    Y_test = DataPrep.Y_test
 
     # AdaBoost ML algortihm using 5 weak classifiers
 
@@ -47,12 +50,12 @@ def main():
     print("Performance metrix\t\t")
     
     print(f"Accuracy: \t{accuracy}")
-    print(f"Precision: \t{precision}")
-    print(f"Recall: \t{recall}")
-    print(f"Confusion: \t{confusion}")
-    print(f"f1: \t{f1}")
-    print(f"Cohen: \t{cohen}")
-    print(f"Roc: \t{roc}")
+    #print(f"Precision: \t{precision}")
+    #print(f"Recall: \t{recall}")
+    #print(f"Confusion: \t{confusion}")
+    #print(f"f1: \t{f1}")
+    #print(f"Cohen: \t{cohen}")
+    #print(f"Roc: \t{roc}")
     # Error due to the fact that AdaBoost class assumes inputs are np-arrays. Mine are pandas dataframes
 
 if __name__ == "__main__":
