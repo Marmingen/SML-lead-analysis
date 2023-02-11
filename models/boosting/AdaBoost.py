@@ -70,17 +70,4 @@ class AdaBoost():
         Y_pred = np.sign(Y_pred)
 
         return Y_pred
-Footer
-© 2023 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
+
