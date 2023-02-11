@@ -1,5 +1,7 @@
 ### IMPORTS ###
 
+from random import randrange, uniform
+
 import numpy as np
 import pandas as pd
 import sys
@@ -56,7 +58,6 @@ class DataPreperation():
         Y_train = Y_train.replace("Male", 1)
         X_train = train.drop("Lead", axis=1)
 
-
         Y_test = test["Lead"]
         Y_test = Y_test.replace("Female", -1)
         Y_test = Y_test.replace("Male", 1)
@@ -75,13 +76,69 @@ class DataPreperation():
     def __clean_data(self):
         pass
         
-    def SMOTE(self):
+    def SMOTE(self, N, k):
         """
         Synthetic minority oversampling technique. 
         Used for oversampling the minority feature: females
 
+        T: Number of minority class samples
+        N: Amount of SMOTE
+        k: Number of nearest neighbours
         """
-        pass
+
+        def __Populate(N, i, nnarray):
+            """
+            (Hidden) Method to generate synthetic samples
+
+            N:
+            i:
+            nnarray:
+            """
+            nonlocal new_index 
+            nonlocal synthetics
+            nonlocal minority_sample
+           
+            while N != 0:
+                nn = randrange(1, k+1)
+
+                for attr in range(num_attrs):
+                    dif = minority_sample[nnarray[nn]][attr] - minority_sample[i][attr]
+                    gap = uniform(0, 1)
+                    synthetics[new_index][attr] = minority_sample[i][attr] + gap * dif
+
+                new_index += 1
+                N -= 1
+        
+        # convert to np.ndarray data type
+        if not isinstance(self.X_train, np.ndarray):
+            sample_x = self.X_train.to_numpy()
+            sample_y = self.Y_train.to_numpy()
+        else:
+            sample_x = self.X_train
+            sample_y = self.Y_train
+
+        # get samples of minority class from the training set 
+        minority_idx = [i for i in range(0, len(sample_y)) if sample_y[i] == -1]
+        minority_sample = [sample_x[i] for i in minority_idx]
+
+        
+        T, num_attrs = sample_x.shape # num_attrs: number of features
+
+        if N < 100:
+            T = round((N/100) * T)
+            N = 100
+
+        N = int(N/100)
+        
+        new_index = 0
+        synthetics = np.zeros(T * N, num_attrs)
+        
+        for i in range(T):
+            #compute k nearest neighbours for i, and save the indeces to nnarray
+        
+            __Populate(1,1,1)
+
+        return synthetics
 
 
     def visualize(self):
