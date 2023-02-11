@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 import sys
 import os
-
+from random import uniform
+from random import randrange
 
 ### CHECKING FOLDERS ###
 
@@ -18,7 +19,7 @@ clear = lambda : os.system("cls")
 
 
 class DataPreparation():
-    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False):
+    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False, random = False):
         """
         path_data: absolute path to data
         numpy_bool: convert to numpy.ndarray or keep as pandas
@@ -28,6 +29,7 @@ class DataPreparation():
         self.numpy_bool = numpy_bool
         self.drop_cols = drop_cols
         self.gender = gender
+        self.random = random
 
         try:
             if sys.platform == "darwin": # for macOS
@@ -39,17 +41,19 @@ class DataPreparation():
 
         self.x_length = self.data.shape[0]
         self.y_length = self.data.shape[1]
-        self.Y_train, self.X_train, self.X_test, self.Y_test = self.create_data_sets()
+        self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
         
+    def raw(self):
+        X = self.data.drop(columns=['Lead'])
+        Y = self.data['Lead']
+        return X, Y
+    
 
     def __create_data_sets(self):
-        for _ in self.drop_cols:
-            self.data = self.data.drop(_, axis=1)
-
-        train = self.data.sample(frac = .7, random_state=200)
-        
-    def create_data_sets(self):
-        train = self.data.sample(frac = .7, random_state=10)
+        if self.random:
+            train = self.data.sample(frac= .7)
+        else:
+            train = self.data.sample(frac = .7, random_state=10)
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
