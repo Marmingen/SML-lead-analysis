@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 dirname = os.getcwd()
 dirname = dirname.replace("/models/boosting", "")
 sys.path.insert(1,os.path.join(dirname, "general_classes"))
-from DataPreperation import DataPreperation
+from DataPreparation import DataPreparation
 from Performance import Performance
 
 
@@ -23,8 +23,8 @@ clear = lambda : os.system("cls")
 def main():
     # Fix data
     path_data = dirname + "/data/train.csv"
-
-    DataPrep = DataPreperation(path_data, numpy_bool = True)
+    drop_cols = ["Year", "Number words male", "Total words"]
+    DataPrep = DataPreparation(path_data, numpy_bool = True, drop_cols = drop_cols)
     # Add the to.numpy() converter in the adaboost. Check if it already is numpy or not
     X_train = DataPrep.X_train
     Y_train = DataPrep.Y_train
