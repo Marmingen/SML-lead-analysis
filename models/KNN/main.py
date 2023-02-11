@@ -99,7 +99,7 @@ def main():
 
     misclass_cross_val = np.zeros(len(K))
 
-    for train_i, test_i in cross_val.split(X_train):
+    # for train_i, test_i in cross_val.split(X_train):
         
 
 
