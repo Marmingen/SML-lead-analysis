@@ -34,7 +34,10 @@ def main():
 
     # Create (if numpy_bool=False) pandas frames for 70% training data and 30% validation data
 
-    Y_train, X_train, X_test, Y_test = dp.create_data_sets()
+    X_train = dp.X_train
+    X_test = dp.X_test
+    Y_train = dp.Y_train
+    Y_test = dp.Y_test
     
     # Implement k-NN algorithm for different k - values
 
@@ -56,7 +59,7 @@ def main():
     plt.xlabel('k')
     plt.ylabel('Error')
 
-    
+
     ### 
     ### Calculate the results for different validation sets and take the average ###
 
@@ -67,10 +70,11 @@ def main():
     # Import the dataset again but for random_seed off so the validation sets become different
 
     df = DataPreparation('./data/train.csv', numpy_bool=True, gender=False, random=True)
-
+    X, Y = df.raw()
+    print(X)
     for i in range(n):
 
-        Y_train, X_train, X_test, Y_test = df.create_data_sets()
+        X, Y = df.raw()
 
         for j, k in enumerate(K):
             model = skl_nb.KNeighborsClassifier(n_neighbors=k).fit(X_train, Y_train)
