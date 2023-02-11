@@ -40,7 +40,7 @@ class DataPreparation():
 
         self.x_length = self.data.shape[0]
         self.y_length = self.data.shape[1]
-        self.Y_train, self.X_train, self.X_test, self.Y_test = self.create_data_sets()
+        #self.Y_train, self.X_train, self.X_test, self.Y_test = self.create_data_sets()
         
 
     def __create_data_sets(self):
