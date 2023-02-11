@@ -5,7 +5,8 @@ import os
 sys.path.append(str(sys.path[0][:-14]))
 from AdaBoost import AdaBoost
 from matplotlib import pyplot as plt
-
+from GradientBoosting import GradientBoosting
+Grad = GradientBoosting()
 
 ### CHECKING FOLDERS ###
 dirname = os.getcwd()
