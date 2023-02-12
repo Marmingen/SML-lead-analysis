@@ -5,7 +5,8 @@ import os
 sys.path.append(str(sys.path[0][:-14]))
 from AdaBoost import AdaBoost
 from matplotlib import pyplot as plt
-
+from GradientBoosting import GradientBoosting
+Grad = GradientBoosting()
 
 ### CHECKING FOLDERS ###
 dirname = os.getcwd()
@@ -25,10 +26,8 @@ def main():
     path_data = dirname + "/data/train.csv"
     drop_cols = ["Year", "Number words male", "Total words"]
     DataPrep = DataPreparation(path_data, numpy_bool = True, drop_cols = drop_cols, gender=False)
-    Y_train = DataPrep.Y_train
-    X_train = DataPrep.X_train
-    X_test = DataPrep.X_test
-    Y_test = DataPrep.Y_test
+    X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
+
 
     # AdaBoost ML algortihm using 5 weak classifiers
 
