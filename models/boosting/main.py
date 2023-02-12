@@ -22,13 +22,24 @@ clear = lambda : os.system("cls")
 
 ### MAIN ###
 
+
+
+from imblearn.over_sampling import SMOTE
+
 def main():
     # Fix data
     path_data = dirname + "/data/train.csv"
-    drop_cols = ["Year", "Number words male", "Total words"]
+    drop_cols = []
     DataPrep = DataPreparation(path_data, numpy_bool = True, drop_cols = drop_cols, gender=False)
-    DataPrep.SMOTE2()
+    #DataPrep.SMOTE3(k=5)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
+    #print(f"Females:\t {len(np.where(Y_train == -1)[0])}")
+    #print(f"Males: \t{len(np.where(Y_train == 1)[0])}")
+
+    sm = SMOTE(random_state = 42)
+    X_res, Y_res = sm.fit_resample(X_train, Y_train)
+    X_train = np.concatenate((X_train, X_res))
+    Y_train = np.concatenate((Y_train, Y_res))
     
     # AdaBoost ML algortihm using 5 weak classifiers
 

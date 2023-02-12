@@ -89,25 +89,22 @@ class DataPreparation():
     def __clean_data(self):
         pass
         
-    
-    def __Populate(self, N, i, nnarray, k, num_attrs, minority_sample, synthetics, new_index):
-        """
 
+    def __Populate(self, T, N, i, nnarray, k, num_attrs, minority_sample, new_index):
 
-        """
+        synthetics = np.empty([13,1])
         while N != 0:
             nn = randrange(1, k+1)
 
             for attr in range(num_attrs):
                 dif = minority_sample.iloc[nnarray[nn]][attr] - minority_sample.iloc[i][attr]
-                print(dif)
                 gap = uniform(0, 1)
                 synthetics[new_index][attr] = minority_sample.iloc[i][attr] + gap * dif
+                print(synthetics.shape)
             new_index = new_index + 1
             N = N - 1
-
         return synthetics
-    
+
 
     def SMOTE(self, N, k):
         """
@@ -126,13 +123,9 @@ class DataPreparation():
             sample_x = self.X_train
             sample_y = self.Y_train
 
-
+        # Get samples of minority class from the training set
         sample = sample_x.assign(Lead = sample_y.to_numpy())
         minority_sample = sample[sample["Lead"] == -1].drop(["Lead"], axis = 1)
-        # get samples of minority class from the training set
-        #minority_idx = [i for i in range(0, sample_y.shape[0]) if sample_y.iloc[i,0] == -1]
-        #minority_sample = [sample_x.iloc[i, :] for i in minority_idx]
-        #print(minority_sample) 
          
         T, num_attrs = minority_sample.shape # num_attrs: number of features
         if N < 100:
@@ -143,24 +136,28 @@ class DataPreparation():
         
         new_index = 0
         nbrs = NearestNeighbors(n_neighbors=k+1).fit(minority_sample.values)
-        synthetics = np.zeros([T * N, num_attrs])
+        synthetics = np.empty([T * N, num_attrs])
         
         for i in range(T):
             #compute k nearest neighbours for i, and save the indeces to nnarray
             nnarray = nbrs.kneighbors(minority_sample.iloc[i].values.reshape(1, -1), return_distance = False)[0]
 
-            synthetics = self.__Populate(N, i, nnarray, k, num_attrs, minority_sample, synthetics, new_index)
-
-        return synthetics
+            np.append(synthetics, self.__Populate(T, N, i, nnarray, k, num_attrs, minority_sample, new_index))
 
 
+        self.X_train = np.concatenate((self.X_train, synthetics))
+        new_y = [-1 for i in range(len(synthetics))]
+        self.Y_train = np.concatenate((self.Y_train, new_y))
 
-    def SMOTE2(self, target_ratio=None, k=5, random_state=0):
+        #return synthetics
+
+    def SMOTE3(self, k=4):
         """
 
-        """
-        # convert to np.ndarray data type
 
+        """
+
+        # Convert to np.ndarray data type
         if not isinstance(self.X_train, np.ndarray):
             X = self.X_train.to_numpy()
             y = self.Y_train.to_numpy()
@@ -168,39 +165,32 @@ class DataPreparation():
             X = self.X_train
             y = self.Y_train
 
-        np.random.seed(random_state)
+        # Get samples of minority class from the training set
+        min_samples_idx = np.where(y == -1)[0]
+        min_sample = X[min_samples_idx]
+        num_min_samples = len(X[min_samples_idx])
+        num_attrs = min_sample.shape[1]
 
-        # Minority class indices
-        minority_idx = np.where(y==-1)[0]
-        n_min_samples = minority_idx.shape[0]
-
-        # Calculate how many new minority class samples should be generated
-        if target_ratio is None:
-            target_ratio = 1.0 / np.mean(y == -1) - 1.0
-
-        n_gen_samples = int(n_min_samples * target_ratio)
-
+        # Calculate how many new synthetic minority class samples should be generated
+        num_gen_samples = len(np.where(y==1)[0]) - len(np.where(y==-1)[0])
+        
         # Fit a k nearest neighbors model to the minority class samples
-        nearest_neighbors = NearestNeighbors(n_neighbors = k, metric="euclidean").fit(X[minority_idx])
-        distances, indices = nearest_neighbors.kneighbors(X[minority_idx])
+        nearest_neighbors = NearestNeighbors(n_neighbors = k + 1).fit(min_sample)
+        distances, indices = nearest_neighbors.kneighbors(min_sample)
 
+        synthetics = np.empty([num_gen_samples, X.shape[1]])
+        
         # Generate the synthetic samples
-        synthetic_samples = np.zeros((n_gen_samples, X.shape[1]))
+        for i in range(num_gen_samples):
+            j = np.random.randint(0, num_min_samples)
+            synthetics[i,:] = min_sample[j] + uniform(0, 1) * (min_sample[indices[j, np.random.randint(1, k)]] - min_sample[j])
 
-        for i in range(n_gen_samples):
-            j = np.random.randint(0, n_min_samples)
-            synthetic_samples[i,:] = X[minority_idx[j]] + np.random.rand() * \
-                    (X[minority_idx[indices[j, np.random.randint(1, k)]]] -  \
-                    X[minority_idx[j]])
-
-        self.X_train = np.concatenate((self.X_train, synthetic_samples))
-        new_y = [-1 for i in range(len(synthetic_samples))]
+        # Merge the training set with the synthetic samples
+        self.X_train = np.concatenate((self.X_train, synthetics))
+        new_y = [-1 for i in range(num_gen_samples)]
         self.Y_train = np.concatenate((self.Y_train, new_y))
 
-
-
-
-    
+ 
     def visualize(self):
         pass
 
