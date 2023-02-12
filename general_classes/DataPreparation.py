@@ -100,6 +100,7 @@ class DataPreparation():
 
             for attr in range(num_attrs):
                 dif = minority_sample.iloc[nnarray[nn]][attr] - minority_sample.iloc[i][attr]
+                print(dif)
                 gap = uniform(0, 1)
                 synthetics[new_index][attr] = minority_sample.iloc[i][attr] + gap * dif
             new_index = new_index + 1
@@ -151,6 +152,53 @@ class DataPreparation():
             synthetics = self.__Populate(N, i, nnarray, k, num_attrs, minority_sample, synthetics, new_index)
 
         return synthetics
+
+
+
+    def SMOTE2(self, target_ratio=None, k=5, random_state=0):
+        """
+
+        """
+        # convert to np.ndarray data type
+
+        if not isinstance(self.X_train, np.ndarray):
+            X = self.X_train.to_numpy()
+            y = self.Y_train.to_numpy()
+        else:
+            X = self.X_train
+            y = self.Y_train
+
+        np.random.seed(random_state)
+
+        # Minority class indices
+        minority_idx = np.where(y==-1)[0]
+        n_min_samples = minority_idx.shape[0]
+
+        # Calculate how many new minority class samples should be generated
+        if target_ratio is None:
+            target_ratio = 1.0 / np.mean(y == -1) - 1.0
+
+        n_gen_samples = int(n_min_samples * target_ratio)
+
+        # Fit a k nearest neighbors model to the minority class samples
+        nearest_neighbors = NearestNeighbors(n_neighbors = k, metric="euclidean").fit(X[minority_idx])
+        distances, indices = nearest_neighbors.kneighbors(X[minority_idx])
+
+        # Generate the synthetic samples
+        synthetic_samples = np.zeros((n_gen_samples, X.shape[1]))
+
+        for i in range(n_gen_samples):
+            j = np.random.randint(0, n_min_samples)
+            synthetic_samples[i,:] = X[minority_idx[j]] + np.random.rand() * \
+                    (X[minority_idx[indices[j, np.random.randint(1, k)]]] -  \
+                    X[minority_idx[j]])
+
+        self.X_train = np.concatenate((self.X_train, synthetic_samples))
+        new_y = [-1 for i in range(len(synthetic_samples))]
+        self.Y_train = np.concatenate((self.Y_train, new_y))
+
+
+
 
     
     def visualize(self):
