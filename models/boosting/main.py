@@ -27,19 +27,27 @@ clear = lambda : os.system("cls")
 from imblearn.over_sampling import SMOTE
 
 def main():
+    """
+
     # Fix data
     path_data = dirname + "/data/train.csv"
     drop_cols = []
     DataPrep = DataPreparation(path_data, numpy_bool = True, drop_cols = drop_cols, gender=False)
     #DataPrep.SMOTE3(k=5)
-    X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
-    #print(f"Females:\t {len(np.where(Y_train == -1)[0])}")
-    #print(f"Males: \t{len(np.where(Y_train == 1)[0])}")
 
-    sm = SMOTE(random_state = 42)
-    X_res, Y_res = sm.fit_resample(X_train, Y_train)
-    X_train = np.concatenate((X_train, X_res))
-    Y_train = np.concatenate((Y_train, Y_res))
+    #DataPrep.SMOTEtest(200,5)
+    X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
+    print(f"Females:\t {len(np.where(Y_train == -1)[0])}")
+    print(f"Males: \t{len(np.where(Y_train == 1)[0])}")
+
+    #sm = SMOTE(random_state = 42)
+    #X_res, Y_res = sm.fit_resample(X_train, Y_train)
+    #X_train = np.concatenate((X_train, X_res))
+    #Y_train = np.concatenate((Y_train, Y_res))
+    print(f"Females:\t {len(np.where(Y_train==-1)[0])}")
+    print(f"Males: \t{len(np.where(Y_train == 1)[0])}")
+
+    DataPrep.k_fold(5)
     
     # AdaBoost ML algortihm using 5 weak classifiers
 
@@ -73,6 +81,17 @@ def main():
     #print(synthetics.shape)
     #synthetic_df = pd.DataFrame(synthetics, columns=[1,2,3,4,5,6,7,8,9,10,11,12,13])
     #print(synthetic_df)
+    """
+    path_data = dirname + "/data/train.csv"
+    drop_cols = []
+    DataPrep = DataPreparation(path_data, numpy_bool = True, drop_cols = drop_cols, gender = False)
+    sets = DataPrep.k_fold(5)
+
+    clf = AdaBoost(n_clf=5
+        for i in
+        clf.fit()
+
+    
 
 if __name__ == "__main__":
     main()

@@ -195,8 +195,61 @@ class DataPreparation():
         pass
 
 
-    def k_fold_cross_val(self, n_folds, n_rep, ):
-        pass
+    def k_fold(self, n_folds):
+        if not isinstance(self.X_train, np.ndarray):
+            X_train = self.X_train.to_numpy()
+            y_train = self.Y_train.to_numpy()
+            X_test = self.X_test.to_numpy()
+            y_test = self.Y_test.to_numpy()
+        else:
+            X_train = self.X_train
+            y_train = self.Y_train
+            X_test = self.X_test
+            y_test = self.Y_test
+        X = np.concatenate((X_train, X_test))
+        Y = np.concatenate((y_train, y_test))
+
+        index = int(len(X)/n_folds)
+        sets = []
+        for i in range(n_folds):
+            sets.append([X[i:i+1], Y[i:i+1]])
+
+        return sets
         
 
-
+    def SMOTEtest(self, N: int, k: int):
+        
+        min_sample_idx = np.where(self.Y_train == -1)[0]
+        sample = pd.DataFrame(self.X_train[min_sample_idx])
+        T, num_attrs = sample.shape
+    
+        # If N is less than 100%, randomize the minority class samples as only a random percent of them will be SMOTEd
+        if N < 100:
+            T = round(N / 100 * T)
+            N = 100
+        # The amount of SMOTE is assumed to be in integral multiples of 100
+        N = int(N / 100)
+        synthetic = np.zeros([T * N, num_attrs])
+        new_index = 0
+        nbrs = NearestNeighbors(n_neighbors=k+1).fit(sample.values)
+        def populate(N, i, nnarray):
+        
+            nonlocal new_index
+            nonlocal synthetic
+            nonlocal sample
+            while N != 0:
+                nn = randrange(1, k+1)
+                for attr in range(num_attrs):
+                    dif = sample.iloc[nnarray[nn]][attr] - sample.iloc[i][attr]
+                    gap = uniform(0, 1)
+                    synthetic[new_index][attr] = sample.iloc[i][attr] + gap * dif
+                new_index += 1              
+                N = N - 1
+    
+        for i in range(T):
+            nnarray = nbrs.kneighbors(sample.iloc[i].values.reshape(1, -1), return_distance=False)[0]
+            populate(N, i, nnarray)
+    
+        self.X_train = np.concatenate((self.X_train, synthetic))
+        new_y = [-1 for i in range(len(synthetic))]
+        self.Y_train = np.concatenate((self.Y_train, new_y))
