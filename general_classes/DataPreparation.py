@@ -50,7 +50,6 @@ class DataPreparation():
         X = self.data.drop(columns=['Lead'])
         Y = self.data['Lead']
         return X, Y
-    
 
     def __create_data_sets(self):
         if self.random:
