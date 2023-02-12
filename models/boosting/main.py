@@ -2,6 +2,7 @@
 import numpy as np
 import sys
 import os
+import pandas as pd
 sys.path.append(str(sys.path[0][:-14]))
 from AdaBoost import AdaBoost
 from matplotlib import pyplot as plt
@@ -56,6 +57,11 @@ def main():
     #print(f"Cohen: \t{cohen}")
     #print(f"Roc: \t{roc}")
     # Error due to the fact that AdaBoost class assumes inputs are np-arrays. Mine are pandas dataframes
+
+    synthetics = DataPrep.SMOTE(N=200, k=5)
+    print(synthetics.shape)
+    synthetic_df = pd.DataFrame(synthetics, columns=[1,2,3,4,5,6,7,8,9,10,11,12,13])
+    print(synthetic_df)
 
 if __name__ == "__main__":
     main()
