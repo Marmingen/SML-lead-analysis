@@ -6,6 +6,7 @@ import sys
 import os
 from random import uniform
 from random import randrange
+from sklearn.neighbors import NearestNeighbors
 
 ### CHECKING FOLDERS ###
 
@@ -43,13 +44,16 @@ class DataPreparation():
         self.y_length = self.data.shape[1]
         self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
         
+
     def get_sets(self):
         return self.X_train, self.X_test, self.Y_train, self.Y_test
+
 
     def raw(self):
         X = self.data.drop(columns=['Lead'])
         Y = self.data['Lead']
         return X, Y
+
 
     def __create_data_sets(self):
         if self.random:
@@ -81,10 +85,27 @@ class DataPreparation():
         else:
             return Y_train, X_train, X_test, Y_test
 
+
     def __clean_data(self):
         pass
         
-    
+
+    def __Populate(self, T, N, i, nnarray, k, num_attrs, minority_sample, new_index):
+
+        synthetics = np.empty([13,1])
+        while N != 0:
+            nn = randrange(1, k+1)
+
+            for attr in range(num_attrs):
+                dif = minority_sample.iloc[nnarray[nn]][attr] - minority_sample.iloc[i][attr]
+                gap = uniform(0, 1)
+                synthetics[new_index][attr] = minority_sample.iloc[i][attr] + gap * dif
+                print(synthetics.shape)
+            new_index = new_index + 1
+            N = N - 1
+        return synthetics
+
+
     def SMOTE(self, N, k):
         """
         Synthetic minority oversampling technique. 
@@ -94,43 +115,19 @@ class DataPreparation():
         k: Number of nearest neighbours
         """
 
-        def __Populate(N, i, nnarray):
-            """
-            (Hidden) Method to generate synthetic samples
-            N:
-            i:
-            nnarray:
-            """
-            nonlocal new_index 
-            nonlocal synthetics
-            nonlocal minority_sample
-           
-            while N != 0:
-                nn = randrange(1, k+1)
-
-                for attr in range(num_attrs):
-                    dif = minority_sample[nnarray[nn]][attr] - minority_sample[i][attr]
-                    gap = uniform(0, 1)
-                    synthetics[new_index][attr] = minority_sample[i][attr] + gap * dif
-
-                new_index += 1
-                N -= 1
-        
         # convert to np.ndarray data type
-        if not isinstance(self.X_train, np.ndarray):
-            sample_x = self.X_train.to_numpy()
-            sample_y = self.Y_train.to_numpy()
+        if isinstance(self.X_train, np.ndarray):
+            sample_x = pd.DataFrame(self.X_train)
+            sample_y = pd.DataFrame(self.Y_train)
         else:
             sample_x = self.X_train
             sample_y = self.Y_train
 
-        # get samples of minority class from the training set 
-        minority_idx = [i for i in range(0, len(sample_y)) if sample_y[i] == -1]
-        minority_sample = [sample_x[i] for i in minority_idx]
-
-        
-        T, num_attrs = sample_x.shape # num_attrs: number of features
-
+        # Get samples of minority class from the training set
+        sample = sample_x.assign(Lead = sample_y.to_numpy())
+        minority_sample = sample[sample["Lead"] == -1].drop(["Lead"], axis = 1)
+         
+        T, num_attrs = minority_sample.shape # num_attrs: number of features
         if N < 100:
             T = round((N/100) * T)
             N = 100
@@ -138,20 +135,68 @@ class DataPreparation():
         N = int(N/100)
         
         new_index = 0
-        synthetics = np.zeros(T * N, num_attrs)
+        nbrs = NearestNeighbors(n_neighbors=k+1).fit(minority_sample.values)
+        synthetics = np.empty([T * N, num_attrs])
         
         for i in range(T):
             #compute k nearest neighbours for i, and save the indeces to nnarray
+            nnarray = nbrs.kneighbors(minority_sample.iloc[i].values.reshape(1, -1), return_distance = False)[0]
+
+            np.append(synthetics, self.__Populate(T, N, i, nnarray, k, num_attrs, minority_sample, new_index))
+
+
+        self.X_train = np.concatenate((self.X_train, synthetics))
+        new_y = [-1 for i in range(len(synthetics))]
+        self.Y_train = np.concatenate((self.Y_train, new_y))
+
+        #return synthetics
+
+    def SMOTE3(self, k=4):
+        """
+
+
+        """
+
+        # Convert to np.ndarray data type
+        if not isinstance(self.X_train, np.ndarray):
+            X = self.X_train.to_numpy()
+            y = self.Y_train.to_numpy()
+        else:
+            X = self.X_train
+            y = self.Y_train
+
+        # Get samples of minority class from the training set
+        min_samples_idx = np.where(y == -1)[0]
+        min_sample = X[min_samples_idx]
+        num_min_samples = len(X[min_samples_idx])
+        num_attrs = min_sample.shape[1]
+
+        # Calculate how many new synthetic minority class samples should be generated
+        num_gen_samples = len(np.where(y==1)[0]) - len(np.where(y==-1)[0])
         
-            __Populate(1,1,1)
+        # Fit a k nearest neighbors model to the minority class samples
+        nearest_neighbors = NearestNeighbors(n_neighbors = k + 1).fit(min_sample)
+        distances, indices = nearest_neighbors.kneighbors(min_sample)
 
-        return synthetics
+        synthetics = np.empty([num_gen_samples, X.shape[1]])
+        
+        # Generate the synthetic samples
+        for i in range(num_gen_samples):
+            j = np.random.randint(0, num_min_samples)
+            synthetics[i,:] = min_sample[j] + uniform(0, 1) * (min_sample[indices[j, np.random.randint(1, k)]] - min_sample[j])
 
-    
+        # Merge the training set with the synthetic samples
+        self.X_train = np.concatenate((self.X_train, synthetics))
+        new_y = [-1 for i in range(num_gen_samples)]
+        self.Y_train = np.concatenate((self.Y_train, new_y))
+
+ 
     def visualize(self):
         pass
 
-    def k_fold_cross_val(self):
+
+    def k_fold_cross_val(self, n_folds, n_rep, ):
         pass
+        
 
 
