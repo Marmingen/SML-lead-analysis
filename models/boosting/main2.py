@@ -26,7 +26,7 @@ def main():
  
     # Define dataset
     path_data = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path_data, drop_cols = ["Mean Age Female", "Mean Age Male"], numpy_bool = True, gender = False)
+    DataPrep = DataPreparation(path_data, drop_cols = ["Year", "Mean Age Female"], numpy_bool = True, gender = False, normalize = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
     X_train = np.concatenate((X_train, X_test))
     Y_train = np.concatenate((Y_train, Y_test))
@@ -38,9 +38,10 @@ def main():
 
     X_train = np.concatenate((X_train, X_res))
     X_train = np.concatenate((X_train, X_res2))
+
     Y_train = np.concatenate((Y_train, Y_res))
     Y_train = np.concatenate((Y_train, Y_res2))
-    """ 
+    
     # Define the model
     model = AdaBoostClassifier()
 
@@ -79,7 +80,7 @@ def main():
             # report best
     print('Done!')
     print('f(%s) = %f' % (best_subset, best_score))
-
+    """
 if __name__ == "__main__":
     main()
 
