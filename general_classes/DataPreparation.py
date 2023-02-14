@@ -22,14 +22,14 @@ clear = lambda : os.system("cls")
 class DataPreparation():
     def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False, random = False, normalize = False, clean=True):
         """
-        path_data: absolute path to data
-        numpy_bool: convert to numpy.ndarray or keep as pandas
-        drop_cols: list of columns that should be dropped from dataframe
-        gender: keep gender labels as strings or not
-        random:
-        normalize:
-        clean: clean colinear data or not
-
+        :param str path_data: absolute path to data
+        :param bool numpy_bool: convert to numpy.ndarray or keep as pandas
+        :param bool drop_cols: list of columns that should be dropped from dataframe
+        :param bool gender: keep gender labels as strings or not
+        :param bool random:
+        :param bool normalize:
+        :param bool clean: clean colinear data or not
+        
         """
         self.numpy_bool = numpy_bool
         self.drop_cols = drop_cols
@@ -110,7 +110,6 @@ class DataPreparation():
         pass
     
     def __limit_vars(self):
-        
         # this selection was done since the VIF of the two were quite large
         # (logically so), thus theyre combined so that as little information is lost
         self.data["Lead age diff"] = self.data["Age Lead"] - self.data["Age Co-Lead"]
@@ -132,7 +131,9 @@ class DataPreparation():
         
         # the feature Year is omitted entirely partly due to it being multicolinear with 
         # features and partyl since it seems to have no large impact on the classification
-        self.data = self.data.drop([""],axis=1)
+        self.data = self.data.drop(["Age Lead", "Age Co-Lead", "Mean Age Male", "Mean Age Female", "Total words",
+                                    "Number words female", "Number words male", "Number of words lead",
+                                    "Number of male actors", "Number of female actors"],axis=1)
 
 
     def k_fold(self, X_train, y_train, X_test, y_test, n_folds):
