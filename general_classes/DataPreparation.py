@@ -20,7 +20,7 @@ clear = lambda : os.system("cls")
 
 
 class DataPreparation():
-    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False, random = False):
+    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False, random = False, normalize = False):
         """
         path_data: absolute path to data
         numpy_bool: convert to numpy.ndarray or keep as pandas
@@ -31,6 +31,7 @@ class DataPreparation():
         self.drop_cols = drop_cols
         self.gender = gender
         self.random = random
+        self.normalize = normalize
 
         try:
             if sys.platform == "darwin": # for macOS
@@ -39,11 +40,15 @@ class DataPreparation():
                 self.data = pd.read_csv(path_data)
         except OSError as e:
             print("FileNotFoundError: [Errno 2] No such file or directory")
+        
+        
+        if len(self.drop_cols) > 0:
+            for col in drop_cols:
+                self.data = self.data.drop([col], axis=1)
 
         self.x_length = self.data.shape[0]
         self.y_length = self.data.shape[1]
         self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
-        
 
     def get_sets(self):
         return self.X_train, self.X_test, self.Y_train, self.Y_test
@@ -53,7 +58,9 @@ class DataPreparation():
         X = self.data.drop(columns=['Lead'])
         Y = self.data['Lead']
         return X, Y
-
+    
+    def change_cols(self):
+        return []
 
     def __create_data_sets(self):
         if self.random:
@@ -74,7 +81,10 @@ class DataPreparation():
             Y_test = Y_test.replace("Female", -1)
             Y_test = Y_test.replace("Male", 1)
         X_test = test.drop("Lead", axis=1)
-
+        
+        if self.normalize:
+            X_train = (X_train-X_train.min())/(X_train.max()-X_train.min())
+            X_test = (X_test - X_test.min())/(X_test.max() - X_test.min())
         # add visualization methods
 
         # CLEAR COLUMNS AND PREPARE DATA
