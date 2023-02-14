@@ -98,29 +98,33 @@ class DataPreparation():
         pass
 
 
-    def k_fold(self, n_folds):
+    def k_fold(self, X_train, y_train, X_test, y_test, n_folds):
         if not isinstance(self.X_train, np.ndarray):
-            X_train = self.X_train.to_numpy()
-            y_train = self.Y_train.to_numpy()
-            X_test = self.X_test.to_numpy()
-            y_test = self.Y_test.to_numpy()
-        else:
-            X_train = self.X_train
-            y_train = self.Y_train
-            X_test = self.X_test
-            y_test = self.Y_test
+            X_train = X_train.to_numpy()
+            y_train = y_train.to_numpy()
+            X_test = X_test.to_numpy()
+            y_test = y_test.to_numpy()
+
         X = np.concatenate((X_train, X_test))
         Y = np.concatenate((y_train, y_test))
 
         index = int(len(X)/n_folds)
-        sets = []
-        for i in range(n_folds):
-            sets.append([X[i:i+1], Y[i:i+1]])
+        testing = []
+        training = []
 
-        return sets
+        for i in range(n_folds):
+            X = np.concatenate((X_train, X_test))
+            Y = np.concatenate((y_train, y_test))
+            test_idx = [i for i in range(index*i, index*(i+1))]
+            testing.append((X[test_idx], Y[test_idx]))
+            training.append((np.delete(X, test_idx, axis=0), np.delete(Y, test_idx, axis=0)))
+
+
+        return training, testing 
         
 
     def SMOTE(self, num = None, perc = None, k = 5, SMOTE_feature = -1):
+        # num doesnt work
         """
         Synthetic minority over sampling technique
         
@@ -144,8 +148,9 @@ class DataPreparation():
         T, num_attrs = sample.shape
 
         if num != None:
-            perc = int(T / num)
-            synthetic = np.zeros([num, num_attrs])
+            perc = int((num+T)/T)
+
+            synthetic = np.zeros([perc*T, num_attrs])
         else:
             # If N is less than 100%, randomize the class samples
             if perc < 100:
@@ -154,13 +159,11 @@ class DataPreparation():
             perc = int(perc / 100)
     
             synthetic = np.zeros([perc*T, num_attrs])
-
         new_index = 0
         nbrs = NearestNeighbors(n_neighbors=k+1).fit(sample.values)
         
         # Populate the synthetic samples
         def populate(N, i, nnarray):
-        
             nonlocal new_index
             nonlocal synthetic
             nonlocal sample
@@ -177,7 +180,7 @@ class DataPreparation():
         for i in range(T):
             nnarray = nbrs.kneighbors(sample.iloc[i].values.reshape(1, -1), return_distance=False)[0]
             populate(perc, i, nnarray)
-
+        #print(synthetic)
         new_y = [SMOTE_feature for i in range(len(synthetic))]
         return synthetic, new_y
         
