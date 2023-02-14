@@ -7,6 +7,7 @@ import os
 from random import uniform
 from random import randrange
 from sklearn.neighbors import NearestNeighbors
+from scipy import stats
 
 ### CHECKING FOLDERS ###
 
@@ -20,7 +21,8 @@ clear = lambda : os.system("cls")
 
 
 class DataPreparation():
-    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False, random = False, normalize = False, clean=True):
+    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False,
+                 random = False, normalize = False, clean=True):
         """
         :param str path_data: absolute path to data
         :param bool numpy_bool: convert to numpy.ndarray or keep as pandas
@@ -77,17 +79,18 @@ class DataPreparation():
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
+        X_train = train.drop("Lead", axis=1)
+        
         if not self.gender:
             Y_train = Y_train.replace("Female", -1)
             Y_train = Y_train.replace("Male", 1)
-        X_train = train.drop("Lead", axis=1)
-
 
         Y_test = test["Lead"]
+        X_test = test.drop("Lead", axis=1)
+        
         if not self.gender:
             Y_test = Y_test.replace("Female", -1)
             Y_test = Y_test.replace("Male", 1)
-        X_test = test.drop("Lead", axis=1)
         
         if self.normalize:
             X_train = (X_train-X_train.min())/(X_train.max()-X_train.min())
@@ -135,31 +138,6 @@ class DataPreparation():
                                     "Number words female", "Number words male", "Number of words lead",
                                     "Number of male actors", "Number of female actors"],axis=1)
 
-
-    def k_fold(self, X_train, y_train, X_test, y_test, n_folds):
-        if not isinstance(self.X_train, np.ndarray):
-            X_train = X_train.to_numpy()
-            y_train = y_train.to_numpy()
-            X_test = X_test.to_numpy()
-            y_test = y_test.to_numpy()
-
-        X = np.concatenate((X_train, X_test))
-        Y = np.concatenate((y_train, y_test))
-
-        index = int(len(X)/n_folds)
-        testing = []
-        training = []
-
-        for i in range(n_folds):
-            X = np.concatenate((X_train, X_test))
-            Y = np.concatenate((y_train, y_test))
-            test_idx = [i for i in range(index*i, index*(i+1))]
-            testing.append((X[test_idx], Y[test_idx]))
-            training.append((np.delete(X, test_idx, axis=0), np.delete(Y, test_idx, axis=0)))
-
-
-        return training, testing 
-        
 
     def SMOTE(self, num = None, perc = None, k = 5, SMOTE_feature = -1):
         # num doesnt work
