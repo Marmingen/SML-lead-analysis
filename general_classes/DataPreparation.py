@@ -71,6 +71,7 @@ class DataPreparation():
         #del self.data["Number of female actors"]
         #del self.data["Number of male actors"]
         del self.data["Difference in words lead and co-lead"]
+        #self.data["Year gross"] = self.data["Gross"]/self.data["Year"]
         del self.data["Gross"]
         del self.data["Year"]
 
