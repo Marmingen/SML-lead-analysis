@@ -115,10 +115,7 @@ class DataPreparation():
     def __limit_vars(self):
         # this selection was done since the VIF of the two were quite large
         # (logically so), thus theyre combined so that as little information is lost
-        self.data["Lead age diff"] = self.data["Age Lead"] - self.data["Age Co-Lead"]
-        
-        # this selection was dine for the same reasons as above
-        self.data["Mean age diff"] = self.data["Mean Age Male"] - self.data["Mean Age Female"]
+        self.data["Lead age diff"] = self.data["Age Lead"]/(self.data["Mean Age Male"]+self.data["Mean Age Female"])*2
         
         # logically, the amount of words features were going to be colinear, as seen by the
         # VIF-factors, thus theyre combined into three different features
@@ -127,16 +124,17 @@ class DataPreparation():
         # much data, theyre accepted as is)
         self.data["Fraction words female"] = self.data["Number words female"]/self.data["Total words"]
         self.data["Fraction words male"] = self.data["Number words male"]/self.data["Total words"]
-        self.data["Fraction words lead"] = self.data["Number of words lead"]/self.data["Total words"]
-
+        self.data["Fraction words diff"] = self.data["Difference in words lead and co-lead"]/self.data["Total words"]        
+        
         # if this turns out to increase k-fold accuracy, it stays
-        self.data["Actor amount diff"] = self.data["Number of male actors"] - self.data["Number of female actors"]
+        self.data["Actor amount diff"] = self.data["Number of male actors"]/self.data["Number of female actors"]
         
         # the feature Year is omitted entirely partly due to it being multicolinear with 
         # features and partyl since it seems to have no large impact on the classification
-        self.data = self.data.drop(["Age Lead", "Age Co-Lead", "Mean Age Male", "Mean Age Female", "Total words",
+        self.data = self.data.drop(["Age Lead", "Mean Age Male", "Mean Age Female", "Total words",
                                     "Number words female", "Number words male", "Number of words lead",
-                                    "Number of male actors", "Number of female actors"],axis=1)
+                                    "Difference in words lead and co-lead",
+                                    "Year"],axis=1)
 
 
     def SMOTE(self, num = None, perc = None, k = 5, SMOTE_feature = -1):
@@ -160,6 +158,8 @@ class DataPreparation():
 
         # Create samples of the minority class
         min_sample_idx = np.where(self.Y_train == SMOTE_feature)[0]
+        
+        print(min_sample_idx)
         sample = pd.DataFrame(self.X_train[min_sample_idx])
         T, num_attrs = sample.shape
 
@@ -197,6 +197,6 @@ class DataPreparation():
             nnarray = nbrs.kneighbors(sample.iloc[i].values.reshape(1, -1), return_distance=False)[0]
             populate(perc, i, nnarray)
         #print(synthetic)
-        new_y = [SMOTE_feature for i in range(len(synthetic))]
+        new_y = [SMOTE_feature for _ in range(len(synthetic))]
         return synthetic, new_y
         
