@@ -48,6 +48,9 @@ def main():
     f1 = []
     cohen = []
     
+    data = {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
+            "f1-score":[], "cohen kappa":[]}
+    
     for _, (train_index, test_index) in enumerate(kf.split(X_train)):
         
         temp_X = X_train[train_index]
@@ -64,21 +67,9 @@ def main():
         
         perf = Performance(y_pred, temp_y_test)
         
-        acc.append(perf.accuracy())
-        bal.append(perf.balanced_accuracy())
-        prec.append(perf.precision())
-        rec.append(perf.recall())
-        f1.append(perf.f1())
-        cohen.append(perf.cohen())
+        perf.combination(data)
     
-    for name, lst in zip(["accuracy:", "balanced accuracy:", "precision:",
-                          "recall:", "f1-score:", "cohen kappa:"],
-                         [acc, bal, prec, rec, f1, cohen]):
-        try:
-            print(name, round(sum(lst)/len(lst),2))
-        except:
-            print(name, round(sum(lst[0])/len(lst[0]),2), round(sum(lst[1])/len(lst[1]),2))
-    
+    perf.print_combination(data)
     
     # acc = perf.accuracy()
     # bal = perf.balanced_accuracy()
