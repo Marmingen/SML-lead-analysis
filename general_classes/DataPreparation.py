@@ -30,6 +30,7 @@ class DataPreparation():
         :param bool random:
         :param bool normalize:
         :param bool clean: clean colinear data or not
+        :param bool custom: use custom parameters for the data features or not
         
         """
         
