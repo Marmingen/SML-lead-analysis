@@ -6,18 +6,21 @@ from numpy import std
 from sklearn.datasets import make_classification
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.metrics import classification_report
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 import sys
 import os
 from itertools import product
-
+from xgboost import XGBClassifier
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
 dirname = dirname.replace("/models/boosting", "")
 sys.path.insert(1, os.path.join(dirname, "general_classes"))
 from DataPreparation import DataPreparation
 from Performance import Performance
-
+from sklearn.metrics import accuracy_score
+from imblearn.over_sampling import SMOTE
 
 
 
@@ -26,31 +29,49 @@ def main():
  
     # Define dataset
     path_data = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path_data, drop_cols = ["Year", "Mean Age Female"], numpy_bool = True, gender = False, normalize = True)
+    DataPrep = DataPreparation(path_data, drop_cols =[], numpy_bool = True, gender = False, normalize = True)
+
+
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
-    X_train = np.concatenate((X_train, X_test))
-    Y_train = np.concatenate((Y_train, Y_test))
+    sm = SMOTE(k_neighbors = 5)
+    X_res, Y_res = sm.fit_resample(X_train, Y_train)
+    X_train = np.concatenate((X_train, X_res))
+    Y_train = np.concatenate((Y_train, Y_res))
+    #X_train = np.concatenate((X_train, X_test))
+    #Y_train = np.concatenate((Y_train, Y_test))
 
     # Use SMOTE
+    model2 = AdaBoostClassifier().fit(X_train, Y_train)
+    y_pred = model2.predict(X_test)
+    print(classification_report(Y_test, y_pred))
     
-    X_res, Y_res = DataPrep.SMOTE(num = None, perc = 300, k = 5, SMOTE_feature = -1)
-    X_res2, Y_res2 = DataPrep.SMOTE(num = None, perc = 300, k = 5, SMOTE_feature = 1)
 
-    X_train = np.concatenate((X_train, X_res))
-    X_train = np.concatenate((X_train, X_res2))
 
-    Y_train = np.concatenate((Y_train, Y_res))
-    Y_train = np.concatenate((Y_train, Y_res2))
-    
+    """ 
     # Define the model
     model = AdaBoostClassifier()
 
     # evaluate the model
     cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
-    n_scores = cross_val_score(model, X_train, Y_train, scoring='accuracy', cv=cv, n_jobs=-1, error_score='raise')
-    
+    #scoring = {'accuracy' : make_scorer(accuracy_score),
+     #  'precision' : make_scorer(precision_score, average = 'micro'),
+     #  'recall' : make_scorer(recall_score, average = 'micro'),
+     #  'f1_score' : make_scorer(f1_score, average = 'micro')}
+
+    n_scores = cross_val_score(model, X_train, Y_train, scoring="precision_micro", cv=cv, n_jobs=-1, error_score='raise')
+     
     # report performance
-    print('Accuracy: %.3f (%.3f)' % (mean(n_scores), std(n_scores)))  
+    #print('Accuracy: %.3f (%.3f)' % (n_scores), std(n_scores))
+    print(n_scores)
+    """
+    #abc = AdaBoostClassifier(n_estimators=50, learning_rate=1)
+    abc = GradientBoostingClassifier()
+    model = abc.fit(X_train, Y_train)
+    y_pred = model.predict(X_test)
+    target_names = ['class 0', 'class 1']
+    print(classification_report(Y_test, y_pred, target_names=target_names))
+
+
     """
     n_cols = X_train.shape[1]
     best_subset, best_score = None, 0.0
