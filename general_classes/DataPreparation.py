@@ -7,6 +7,7 @@ import os
 from random import uniform
 from random import randrange
 from sklearn.neighbors import NearestNeighbors
+from scipy import stats
 
 ### CHECKING FOLDERS ###
 
@@ -20,12 +21,17 @@ clear = lambda : os.system("cls")
 
 
 class DataPreparation():
-    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False, random = False, normalize = False):
+    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False,
+                 random = False, normalize = False, clean=True):
         """
-        path_data: absolute path to data
-        numpy_bool: convert to numpy.ndarray or keep as pandas
-        drop_cols: list of columns that should be dropped from dataframe
-
+        :param str path_data: absolute path to data
+        :param bool numpy_bool: convert to numpy.ndarray or keep as pandas
+        :param bool drop_cols: list of columns that should be dropped from dataframe
+        :param bool gender: keep gender labels as strings or not
+        :param bool random:
+        :param bool normalize:
+        :param bool clean: clean colinear data or not
+        
         """
         self.numpy_bool = numpy_bool
         self.drop_cols = drop_cols
@@ -83,13 +89,16 @@ class DataPreparation():
             for col in drop_cols:
                 self.data = self.data.drop([col], axis=1)
 
+        if clean:
+            self.__limit_vars()
+
         self.x_length = self.data.shape[0]
         self.y_length = self.data.shape[1]
         self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
+        
 
     def get_sets(self):
         return self.X_train, self.X_test, self.Y_train, self.Y_test
-
 
     def raw(self):
         X = self.data.drop(columns=['Lead'])
@@ -107,17 +116,18 @@ class DataPreparation():
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
+        X_train = train.drop("Lead", axis=1)
+        
         if not self.gender:
             Y_train = Y_train.replace("Female", -1)
             Y_train = Y_train.replace("Male", 1)
-        X_train = train.drop("Lead", axis=1)
-
 
         Y_test = test["Lead"]
+        X_test = test.drop("Lead", axis=1)
+        
         if not self.gender:
             Y_test = Y_test.replace("Female", -1)
             Y_test = Y_test.replace("Male", 1)
-        X_test = test.drop("Lead", axis=1)
         
         if self.normalize:
             X_train = (X_train-X_train.min())/(X_train.max()-X_train.min())
@@ -132,43 +142,39 @@ class DataPreparation():
         else:
             return Y_train, X_train, X_test, Y_test
 
-
-    def __clean_data(self):
-        pass
-        
-
     def modify_cols(self):
         pass
 
 
     def visualize(self):
         pass
-
-
-    def k_fold(self, X_train, y_train, X_test, y_test, n_folds):
-        if not isinstance(self.X_train, np.ndarray):
-            X_train = X_train.to_numpy()
-            y_train = y_train.to_numpy()
-            X_test = X_test.to_numpy()
-            y_test = y_test.to_numpy()
-
-        X = np.concatenate((X_train, X_test))
-        Y = np.concatenate((y_train, y_test))
-
-        index = int(len(X)/n_folds)
-        testing = []
-        training = []
-
-        for i in range(n_folds):
-            X = np.concatenate((X_train, X_test))
-            Y = np.concatenate((y_train, y_test))
-            test_idx = [i for i in range(index*i, index*(i+1))]
-            testing.append((X[test_idx], Y[test_idx]))
-            training.append((np.delete(X, test_idx, axis=0), np.delete(Y, test_idx, axis=0)))
-
-
-        return training, testing 
+    
+    def __limit_vars(self):
+        # this selection was done since the VIF of the two were quite large
+        # (logically so), thus theyre combined so that as little information is lost
+        self.data["Lead age diff"] = self.data["Age Lead"] - self.data["Age Co-Lead"]
         
+        # this selection was dine for the same reasons as above
+        self.data["Mean age diff"] = self.data["Mean Age Male"] - self.data["Mean Age Female"]
+        
+        # logically, the amount of words features were going to be colinear, as seen by the
+        # VIF-factors, thus theyre combined into three different features
+        # (the fractions for lead and male have VIFs of ~<7, which is quite bad but
+        # since some sources say VIFs<10 are acceptable and since we dont want to discard too
+        # much data, theyre accepted as is)
+        self.data["Fraction words female"] = self.data["Number words female"]/self.data["Total words"]
+        self.data["Fraction words male"] = self.data["Number words male"]/self.data["Total words"]
+        self.data["Fraction words lead"] = self.data["Number of words lead"]/self.data["Total words"]
+
+        # if this turns out to increase k-fold accuracy, it stays
+        self.data["Actor amount diff"] = self.data["Number of male actors"] - self.data["Number of female actors"]
+        
+        # the feature Year is omitted entirely partly due to it being multicolinear with 
+        # features and partyl since it seems to have no large impact on the classification
+        self.data = self.data.drop(["Age Lead", "Age Co-Lead", "Mean Age Male", "Mean Age Female", "Total words",
+                                    "Number words female", "Number words male", "Number of words lead",
+                                    "Number of male actors", "Number of female actors"],axis=1)
+
 
     def SMOTE(self, num = None, perc = None, k = 5, SMOTE_feature = -1):
         # num doesnt work
