@@ -8,38 +8,23 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pandas as pd
 import sklearn as skl
+import matplotlib.pyplot as plt
 
 import graphviz
 
 def main():
     
     dp = DataPreparation("./data/train.csv")
-    
-    Y_train, X_train, X_test, Y_test = dp.create_data_sets()
-    
-    # T1 = Tree(train, "T1", 3, disp=False)
-    
-    # T1.train()
-    
-    # X_train = train.drop(columns="Lead")
-    # y_train = train["Lead"]
-    
-    # X_test = test.drop(columns="Lead")
-    # y_test = test["Lead"]
+        
+    X_train, X_test, Y_train, Y_test = dp.get_sets()
     
     model = RandomForestClassifier(n_estimators=100)
     
-    # model = tree.DecisionTreeClassifier(max_depth=3)
     model.fit(X=X_train,y=Y_train) 
     
     y_predict = model.predict(X_test)
     
-    pd.crosstab(y_predict, Y_test)
-    
     perf = Performance(y_predict, Y_test)
-    
-    print(perf.roc(ada=True))
-    
     
     # dot_data = tree.export_graphviz(model, out_file=None, feature_names=X_train.columns, class_names=model.classes_, filled=True,
     #                                 rounded=True, leaves_parallel=True,proportion=True)
