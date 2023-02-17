@@ -42,43 +42,42 @@ class DataPreparation():
         except OSError as e:
             print("FileNotFoundError: [Errno 2] No such file or directory")
         
-        #self.data["female_word_per_actor"] = self.data["Number words female"]/self.data["Number of female actors"]
-        #self.data["male_word_per_actor"] = self.data["Number words male"]/self.data["Number of male actors"]
-        #self.data["lead_word_perc"] = self.data["Number of words lead"]/self.data["Total words"]
-        #self.data["female_word_perc"] = self.data["Number words female"]/self.data["Total words"]
-        #self.data["male_word_perc"] = self.data["Number words male"]/self.data["Total words"]
-        #self.data["difference_perc"] = self.data["Difference in words lead and co-lead"]/(self.data["Total words"])
-        #del self.data["Total words"]
-        #del self.data["Number words female"]
-        #del self.data["Number words male"]
-        #del self.data["Difference in words lead and co-lead"]
-        #del self.data["Number of female actors"]
-        #del self.data["Number of male actors"]
-        #del self.data["Number of words lead"]
-        #del self.data["Year"]
-        
+
+
         self.data["perc female words"] = self.data["Number words female"]/self.data["Total words"]
         self.data["perc male words"] = self.data["Number words male"]/self.data["Total words"]
         self.data["diff perc"] = self.data["Difference in words lead and co-lead"]/self.data["Total words"]
-        self.data["diff age"] = self.data["Mean Age Female"]/self.data["Mean Age Male"]
-        self.data["mean age"] = self.data["Age Lead"]/(self.data["Mean Age Female"] + self.data["Mean Age Male"])/2
-        #self.data["gross per year"] = self.data["Gross"]/self.data["Year"] 
+        self.data["perc female actors"] = self.data["Number of female actors"]/self.data["Number of male actors"]
+        
+        self.data["diff fem age"] = self.data["Age Lead"] - self.data["Mean Age Female"]
+        self.data["diff man age"] = self.data["Age Lead"] - self.data["Mean Age Male"]
+        #self.data["diff age"] = self.data["Mean Age Female"]/self.data["Mean Age Male"]
+        #self.data["mean age"] = self.data["Age Lead"]/(self.data["Mean Age Female"] + self.data["Mean Age Male"])/2
+        
+
+
         del self.data["Age Lead"]
         del self.data["Mean Age Female"]
         del self.data["Mean Age Male"]
         del self.data["Total words"]
-        self.data["perc female actors"] = self.data["Number of female actors"]/self.data["Number of male actors"]
-        #del self.data["Number of female actors"]
-        #del self.data["Number of male actors"]
         del self.data["Difference in words lead and co-lead"]
-        #self.data["Year gross"] = self.data["Gross"]/self.data["Year"]
         del self.data["Gross"]
         del self.data["Year"]
+        
+        #mean age och perc female actors är skumma
 
         #del self.data["Number of words lead"]
         #del self.data["Number words female"]
+        #del self.data["Number words male"]
+        #del self.data["Number of female actors"]
+        #del self.data["Number of male actors"]
+        #del self.data["Age Co-Lead"]
 
+        print(self.data.shape)
         print(self.data.columns)
+
+
+
         if len(self.drop_cols) > 0:
             for col in drop_cols:
                 self.data = self.data.drop([col], axis=1)
