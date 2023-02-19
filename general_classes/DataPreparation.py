@@ -1,4 +1,5 @@
-### IMPORTS ###
+##########################################################
+## IMPORTS
 
 import numpy as np
 import pandas as pd
@@ -7,33 +8,45 @@ import os
 from random import uniform
 from random import randrange
 from sklearn.neighbors import NearestNeighbors
+from scipy import stats
 
-### CHECKING FOLDERS ###
+##########################################################
+## CHECKING FOLDERS
 
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
 dirname = dirname.replace("/general_classes", "")
 
-### GLOBALS ###
+##########################################################
+## GLOBALS
 
 clear = lambda : os.system("cls")
 
+##########################################################
+## DataPreparation CLASS
+
 
 class DataPreparation():
-    def __init__(self, path_data, numpy_bool = False, drop_cols = [], gender=False, random = False, normalize = False):
+    
+    def __init__(self, path_data, numpy_bool = False, gender=False,
+                 random = False, normalize = False, clean=True, custom = False):
         """
-        path_data: absolute path to data
-        numpy_bool: convert to numpy.ndarray or keep as pandas
-        drop_cols: list of columns that should be dropped from dataframe
-
+        :param str path_data: absolute path to data
+        :param bool numpy_bool: convert to numpy.ndarray or keep as pandas
+        :param bool gender: keep gender labels as strings or not
+        :param bool random:
+        :param bool normalize:
+        :param bool clean: clean colinear data or not
+        :param bool custom: use custom parameters for the data features or not
+        
         """
+        
         self.numpy_bool = numpy_bool
-        self.drop_cols = drop_cols
         self.gender = gender
         self.random = random
         self.normalize = normalize
 
-
+        # for OS-check
         try:
             if sys.platform == "darwin": # for macOS
                 self.data = pd.read_csv(os.path.join(dirname, path_data)) 
@@ -41,6 +54,7 @@ class DataPreparation():
                 self.data = pd.read_csv(path_data)
         except OSError as e:
             print("FileNotFoundError: [Errno 2] No such file or directory")
+<<<<<<< HEAD
         
 
 
@@ -81,22 +95,51 @@ class DataPreparation():
         if len(self.drop_cols) > 0:
             for col in drop_cols:
                 self.data = self.data.drop([col], axis=1)
+=======
+
+        # preparing the data
+        if clean:
+            self.__limit_vars()
+        elif custom:
+            self.__customized_vars()
+>>>>>>> ad804886db5030bdd1fcbe614ae728feade1289e
 
         self.x_length = self.data.shape[0]
         self.y_length = self.data.shape[1]
         self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
-
-    def get_sets(self):
-        return self.X_train, self.X_test, self.Y_train, self.Y_test
-
-
-    def raw(self):
-        X = self.data.drop(columns=['Lead'])
-        Y = self.data['Lead']
-        return X, Y
     
-    def change_cols(self):
-        return []
+    ##########################################################
+    ## SECRET METHODS
+    
+     # for custom variables
+    def __customized_vars(self):
+        pass
+    
+    def __limit_vars(self):
+        # this selection was done since the VIF of the features were quite large
+        # (logically so), thus theyre combined so that as little information is lost
+        self.data["Diff age"] = self.data["Mean Age Female"]/self.data["Mean Age Male"]
+        self.data["Mean age"] = self.data["Age Lead"]/(self.data["Mean Age Female"] + self.data["Mean Age Male"])*2
+
+        
+        # logically, the amount of words features were going to be colinear, as seen by the
+        # VIF-factors, thus theyre combined into two different features
+        # (the fractions for lead and male have VIFs of ~<7, which is quite bad but
+        # since some sources say VIFs<10 are acceptable and since we dont want to discard too
+        # much data, theyre accepted as is)
+        self.data["Frac female words"] = self.data["Number words female"]/self.data["Total words"]
+        self.data["Frac male words"] = self.data["Number words male"]/self.data["Total words"]
+        
+        # if this turns out to increase k-fold accuracy, it stays
+        self.data["Diff frac"] = self.data["Difference in words lead and co-lead"]/self.data["Total words"]
+        self.data["Frac female actors"] = self.data["Number of female actors"]/self.data["Number of male actors"]
+        
+        
+        # the feature Year is omitted entirely partly due to it being multicolinear with 
+        # features and partyl since it seems to have no large impact on the classification
+                                    
+        self.data = self.data.drop(["Age Lead", "Mean Age Male", "Mean Age Female", "Total words",
+                                    "Difference in words lead and co-lead", "Year"],axis=1)
 
     def __create_data_sets(self):
         if self.random:
@@ -106,17 +149,18 @@ class DataPreparation():
         test = self.data.drop(train.index)
 
         Y_train = train["Lead"]
+        X_train = train.drop("Lead", axis=1)
+        
         if not self.gender:
             Y_train = Y_train.replace("Female", -1)
             Y_train = Y_train.replace("Male", 1)
-        X_train = train.drop("Lead", axis=1)
-
 
         Y_test = test["Lead"]
+        X_test = test.drop("Lead", axis=1)
+        
         if not self.gender:
             Y_test = Y_test.replace("Female", -1)
             Y_test = Y_test.replace("Male", 1)
-        X_test = test.drop("Lead", axis=1)
         
         if self.normalize:
             X_train = (X_train-X_train.min())/(X_train.max()-X_train.min())
@@ -131,44 +175,27 @@ class DataPreparation():
         else:
             return Y_train, X_train, X_test, Y_test
 
+    ##########################################################
+    ## ACCESSABLE METHODS
 
-    def __clean_data(self):
-        pass
-        
+    def get_sets(self):
+        return self.X_train, self.X_test, self.Y_train, self.Y_test
+
+    def raw(self):
+        X = self.data.drop(columns=['Lead'])
+        Y = self.data['Lead']
+        return X, Y
+    
+    def change_cols(self):
+        return []
 
     def modify_cols(self):
         pass
 
-
     def visualize(self):
         pass
 
-
-    def k_fold(self, X_train, y_train, X_test, y_test, n_folds):
-        if not isinstance(self.X_train, np.ndarray):
-            X_train = X_train.to_numpy()
-            y_train = y_train.to_numpy()
-            X_test = X_test.to_numpy()
-            y_test = y_test.to_numpy()
-
-        X = np.concatenate((X_train, X_test))
-        Y = np.concatenate((y_train, y_test))
-
-        index = int(len(X)/n_folds)
-        testing = []
-        training = []
-
-        for i in range(n_folds):
-            X = np.concatenate((X_train, X_test))
-            Y = np.concatenate((y_train, y_test))
-            test_idx = [i for i in range(index*i, index*(i+1))]
-            testing.append((X[test_idx], Y[test_idx]))
-            training.append((np.delete(X, test_idx, axis=0), np.delete(Y, test_idx, axis=0)))
-
-
-        return training, testing 
-        
-
+    # might be deprecated
     def SMOTE(self, num = None, perc = None, k = 5, SMOTE_feature = -1):
         # num doesnt work
         """
@@ -190,6 +217,8 @@ class DataPreparation():
 
         # Create samples of the minority class
         min_sample_idx = np.where(self.Y_train == SMOTE_feature)[0]
+        
+        print(min_sample_idx)
         sample = pd.DataFrame(self.X_train[min_sample_idx])
         T, num_attrs = sample.shape
 
@@ -227,6 +256,6 @@ class DataPreparation():
             nnarray = nbrs.kneighbors(sample.iloc[i].values.reshape(1, -1), return_distance=False)[0]
             populate(perc, i, nnarray)
         #print(synthetic)
-        new_y = [SMOTE_feature for i in range(len(synthetic))]
+        new_y = [SMOTE_feature for _ in range(len(synthetic))]
         return synthetic, new_y
         

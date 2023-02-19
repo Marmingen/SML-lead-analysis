@@ -1,64 +1,96 @@
 import sys
 sys.path.append('.')
 
+import sklearn
+
 from general_classes import *
-from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import KFold
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis as QDA
 
 import numpy as np
-import pandas as pd
-import sklearn as skl
 
-import graphviz
+from imblearn.over_sampling import SMOTE
+
+bar = "##################################################"
+
 
 def main():
     
-    dp = DataPreparation("./data/train.csv")
+    dp = DataPreparation("./data/train.csv", clean=True)
+        
+    X_train, X_test, Y_train, Y_test = dp.get_sets()
     
-    Y_train, X_train, X_test, Y_test = dp.create_data_sets()
+    model = RandomForestClassifier(n_estimators=10)
     
-    # T1 = Tree(train, "T1", 3, disp=False)
-    
-    # T1.train()
-    
-    # X_train = train.drop(columns="Lead")
-    # y_train = train["Lead"]
-    
-    # X_test = test.drop(columns="Lead")
-    # y_test = test["Lead"]
-    
-    model = RandomForestClassifier(n_estimators=100)
-    
-    # model = tree.DecisionTreeClassifier(max_depth=3)
     model.fit(X=X_train,y=Y_train) 
     
     y_predict = model.predict(X_test)
     
-    pd.crosstab(y_predict, Y_test)
-    
     perf = Performance(y_predict, Y_test)
     
-    print(perf.roc(ada=True))
+    sm = SMOTE(k_neighbors=5)
+    X_res, Y_res = sm.fit_resample(X_train,Y_train)
     
     
-    # dot_data = tree.export_graphviz(model, out_file=None, feature_names=X_train.columns, class_names=model.classes_, filled=True,
-    #                                 rounded=True, leaves_parallel=True,proportion=True)
+    X_train = np.concatenate((X_train, X_res))
+    Y_train = np.concatenate((Y_train, Y_res))
     
-    # graph = graphviz.Source(dot_data)
+    X_train = np.concatenate((X_train, X_test))
+    Y_train = np.concatenate((Y_train, Y_test))
     
-    # graph.format = "png"
-    # graph.render("graph")
-
-    # l = []
+    kf = KFold(n_splits=20,random_state=None, shuffle=False)
     
-    # for row in test.iloc:
-    #     prediction = T1.predict(row)
-    #     truth = row["Lead"]
+    acc = []
+    bal = []
+    prec = []
+    rec = []
+    f1 = []
+    cohen = []
+    
+    data = {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
+            "f1-score":[], "cohen kappa":[]}
+    
+    for _, (train_index, test_index) in enumerate(kf.split(X_train)):
         
-    #     l += [1 if truth == prediction else 0]
-    # print()
-    # print(l.count(1)/len(l))
-    # print(T1.print())
+        temp_X = X_train[train_index]
+        temp_Y = Y_train[train_index]
+        
+        temp_x_test = X_train[test_index]
+        temp_y_test = Y_train[test_index]
+        
+        # model = RandomForestClassifier(n_estimators=100)
+        model = QDA()
+        
+        model.fit(temp_X, temp_Y)
+        y_pred = model.predict(temp_x_test)
+        
+        perf = Performance(y_pred, temp_y_test)
+        
+        perf.combination(data)
+    
+    perf.print_combination(data)
+    
+    # acc = perf.accuracy()
+    # bal = perf.balanced_accuracy()
+    # prec = perf.precision()
+    # rec = perf.recall()
+    # conf = perf.confusion()
+    # f1 = perf.f1()
+    # coh = perf.cohen()
+    
+    
+    # print("performance:")
+    # print(bar)
+    # print("accuracy:", round(acc,2))
+    # print("balanced accuracy:", round(bal,2))
+    # print("precision:", round(prec[0],2), round(prec[1],2))
+    # print("recall:", round(rec[0],2),round(rec[1],2))
+    # # print("confusion:", conf)
+    # print("f1-score:", round(f1[0],2),round(f1[1],2))
+    # print("cohen:", round(coh,2))
+    # print(bar)
+
 
 if __name__ == "__main__":
     main()
