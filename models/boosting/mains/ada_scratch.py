@@ -4,20 +4,19 @@ import sys
 import os
 import pandas as pd
 sys.path.append(str(sys.path[0][:-14]))
-from AdaBoost import AdaBoost
 from matplotlib import pyplot as plt
-from GradientBoosting import GradientBoosting
 from statistics import mean
-Grad = GradientBoosting()
 
 ### CHECKING FOLDERS ###
 dirname = os.getcwd()
-dirname = dirname.replace("/models/boosting", "")
+dirname = dirname.replace("/models/boosting/mains", "")
 sys.path.insert(1,os.path.join(dirname, "general_classes"))
 from DataPreparation import DataPreparation
 from Performance import Performance
 from sklearn.model_selection import StratifiedKFold
-
+sys.path.insert(1, os.path.join(dirname, "models/boosting"))
+from AdaBoost import AdaBoost
+from imblearn.over_sampling import SMOTE
 
 ### GLOBALS ###
 clear = lambda : os.system("cls")
@@ -26,7 +25,7 @@ clear = lambda : os.system("cls")
 
 
 
-from imblearn.over_sampling import SMOTE
+
 
 def main():
 
@@ -38,28 +37,16 @@ def main():
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Create synthetic data
-    X_res, Y_res = DataPrep.SMOTE(num = None, perc=300, k=5, SMOTE_feature = -1)
-    X_res2, Y_res2 = DataPrep.SMOTE(num = None, perc=300, k=5, SMOTE_feature = 1)
-    
+    sm = SMOTE(random_state = 42)
+    X_res, Y_res = sm.fit_resample(X_train, Y_train)
+    X_train = np.concatenate((X_train, X_res))
+    Y_train = np.concatenate((Y_train, Y_res))
+     
     
     # Merge all the data
     X_train = np.concatenate((X_train, X_res))
     Y_train = np.concatenate((Y_train, Y_res))
-    X_train = np.concatenate((X_train, X_res2))
-    Y_train = np.concatenate((Y_train, Y_res2))
     
-    #sm = SMOTE(random_state = 42)
-    #X_res, Y_res = sm.fit_resample(X_train, Y_train)
-    #X_train = np.concatenate((X_train, X_res))
-    #Y_train = np.concatenate((Y_train, Y_res))
-    r_indeces = np.arange(len(X_train))
-    np.random.shuffle(r_indeces)
-    X_train = X_train[r_indeces]
-    Y_train = Y_train[r_indeces]
-     
-    
-
-  
     
     # AdaBoost ML algortihm using 5 weak classifiers
 
