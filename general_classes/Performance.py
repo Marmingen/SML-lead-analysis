@@ -57,13 +57,25 @@ class Performance():
         for func, key in zip(funcs, data.keys()):
             data[key].append(func())
             
-    def print_combination(self, data):
-        for key in data.keys():
-            try:
-                print(key + ":", round(sum(data[key])/len(data[key]),2))
-            except ZeroDivisionError:
-                print(key, "undefined due to strange parameters")  
-            except:
-                print(key + ":", round(sum(data[key][0])/len(data[key][0]),2),
-                      round(sum(data[key][1])/len(data[key][1]),2))
     
+##########################################################
+## OUTSIDE FUNCTIONS
+
+def print_combination(data):
+    for key in data.keys():
+        try:
+            print(data[key])
+            print(key + ":", round(sum(data[key])/len(data[key]),2))
+        except ZeroDivisionError:
+            print(key, "undefined due to strange parameters")  
+        except:
+            print(data[key])
+            l = len(data[key])
+            m = sum(val[0] for val in data[key])
+            f = sum(val[1] for val in data[key])
+            
+            print(key + ":", round(m/l,2), round(f/l,2))
+
+def get_dict():
+    return {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
+            "f1-score":[], "cohen kappa":[]}
