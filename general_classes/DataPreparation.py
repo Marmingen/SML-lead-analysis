@@ -69,7 +69,7 @@ class DataPreparation():
         # this selection was done since the VIF of the features were quite large
         # (logically so), thus theyre combined so that as little information is lost
         self.data["Diff age"] = self.data["Mean Age Female"]/self.data["Mean Age Male"]
-        self.data["Mean age"] = self.data["Age Lead"]/(self.data["Mean Age Female"] + self.data["Mean Age Male"])*2
+        self.data["Mean age"] = self.data["Age Lead"]/(2*self.data["Mean Age Female"] + self.data["Mean Age Male"]*2)
 
         # logically, the amount of words features were going to be colinear, as seen by the
         # VIF-factors, thus theyre combined into two different features
@@ -87,7 +87,8 @@ class DataPreparation():
         # features and partyl since it seems to have no large impact on the classification
                                     
         self.data = self.data.drop(["Age Lead", "Mean Age Male", "Mean Age Female", "Total words",
-                                    "Difference in words lead and co-lead", "Year"],axis=1)
+                                    "Difference in words lead and co-lead", "Year", "Gross"],axis=1)
+
 
     def __create_data_sets(self):
         if self.random:
