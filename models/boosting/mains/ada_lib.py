@@ -1,5 +1,4 @@
-
-# evaluate adaboost algorithm for classification
+### IMPORTS ###
 from numpy import mean
 import numpy as np
 from numpy import std
@@ -13,65 +12,77 @@ import sys
 import os
 from itertools import product
 from xgboost import XGBClassifier
+
+# Check folders so it works for different OS:s
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
-dirname = dirname.replace("/models/boosting", "")
+dirname = dirname.replace("/models/boosting/mains", "")
 sys.path.insert(1, os.path.join(dirname, "general_classes"))
+
 from DataPreparation import DataPreparation
 from Performance import Performance
 from sklearn.metrics import accuracy_score
 from imblearn.over_sampling import SMOTE
+from sklearn import preprocessing
 
+### FUNCTIONS ###
 
-
-
-def main():
+def normal_pred():
  
-    # Define dataset
+    # Set data
     path_data = dirname + "/data/train.csv"
     DataPrep = DataPreparation(path_data, drop_cols =[], numpy_bool = True, gender = False, normalize = True)
-
-
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
+
+    # Use data augmentation
     sm = SMOTE(k_neighbors = 5)
     X_res, Y_res = sm.fit_resample(X_train, Y_train)
     X_train = np.concatenate((X_train, X_res))
     Y_train = np.concatenate((Y_train, Y_res))
-    #X_train = np.concatenate((X_train, X_test))
-    #Y_train = np.concatenate((Y_train, Y_test))
 
-    # Use SMOTE
-    model2 = AdaBoostClassifier().fit(X_train, Y_train)
-    y_pred = model2.predict(X_test)
+    # Normalize the data
+    scaler = preprocessing.StandardScaler().fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    # Fit the model and make predictions
+    model = AdaBoostClassifier(n_estimators=50, learning_rate = 1).fit(X_train, Y_train)
+    y_pred = model.predict(X_test)
+
+    # Print performance
+    print("AdaBoostClassifier")
     print(classification_report(Y_test, y_pred))
+
+
+def cross_val():
+    # Set data 
+    path_data = dirname + "/data/train.csv"
+    DataPrep = DataPreparation(path_data, drop_cols =[], numpy_bool = True, gender = False, normalize = True)
+    X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
+
+    # Use data augmentation
+    sm = SMOTE(k_neighbors = 5)
+    X_res, Y_res = sm.fit_resample(X_train, Y_train)
+    X_train = np.concatenate((X_train, X_res))
+    Y_train = np.concatenate((Y_train, Y_res))
+    X_train = np.concatenate((X_train, X_test))
+    Y_train = np.concatenate((Y_train, Y_test))
     
-
-
-    """ 
-    # Define the model
+    # Normalize the data
+    scaler = preprocessing.StandardScaler().fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+    
+    # Fit the model and use k-fold cross validation
     model = AdaBoostClassifier()
 
-    # evaluate the model
     cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
-    #scoring = {'accuracy' : make_scorer(accuracy_score),
-     #  'precision' : make_scorer(precision_score, average = 'micro'),
-     #  'recall' : make_scorer(recall_score, average = 'micro'),
-     #  'f1_score' : make_scorer(f1_score, average = 'micro')}
-
-    n_scores = cross_val_score(model, X_train, Y_train, scoring="precision_micro", cv=cv, n_jobs=-1, error_score='raise')
+    n_scores = cross_val_score(model, X_train, Y_train, scoring="accuracy", cv=cv, n_jobs=-1, error_score='raise')
      
-    # report performance
-    #print('Accuracy: %.3f (%.3f)' % (n_scores), std(n_scores))
-    print(n_scores)
-    """
-    #abc = AdaBoostClassifier(n_estimators=50, learning_rate=1)
-    abc = GradientBoostingClassifier()
-    model = abc.fit(X_train, Y_train)
-    y_pred = model.predict(X_test)
-    target_names = ['class 0', 'class 1']
-    print(classification_report(Y_test, y_pred, target_names=target_names))
+    for i in range(len(n_scores)):
+        print(f"Iteration {i}, accuracy:\t {n_scores[i]}")
 
-
+    print(f"Mean accuracy:\t {np.mean(n_scores)}")
     """
     n_cols = X_train.shape[1]
     best_subset, best_score = None, 0.0
@@ -101,7 +112,13 @@ def main():
             # report best
     print('Done!')
     print('f(%s) = %f' % (best_subset, best_score))
+ 
     """
+
+def main():
+    normal_pred()
+    cross_val()
+
 if __name__ == "__main__":
     main()
 

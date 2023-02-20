@@ -1,10 +1,12 @@
+### IMPORTS ###
 import os
 import sys
 import numpy as np
 
+# Check folders so it works for different OS:s
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
-dirname = dirname.replace("/models/boosting", "")
+dirname = dirname.replace("/models/boosting/mains", "")
 sys.path.insert(1, os.path.join(dirname, "general_classes"))
 
 from DataPreparation import DataPreparation
@@ -17,10 +19,12 @@ from sklearn.model_selection import cross_val_score
 #gridsearch
 # kolla main i max
 
+### MAIN ###
+
 def main():
     # Get the data sets
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, drop_cols = ["Year"], numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, drop_cols = [], numpy_bool = True, gender = False, normalize = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Use SMOTE for over sampling
