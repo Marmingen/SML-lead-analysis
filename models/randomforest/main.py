@@ -7,6 +7,8 @@ from general_classes import *
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis as QDA
+from sklearn import preprocessing
+
 
 import numpy as np
 
@@ -29,38 +31,37 @@ def main():
     
     perf = Performance(y_predict, Y_test)
     
-    sm = SMOTE(k_neighbors=5)
-    X_res, Y_res = sm.fit_resample(X_train,Y_train)
-    
-    
-    X_train = np.concatenate((X_train, X_res))
-    Y_train = np.concatenate((Y_train, Y_res))
-    
     X_train = np.concatenate((X_train, X_test))
     Y_train = np.concatenate((Y_train, Y_test))
     
-    kf = KFold(n_splits=20,random_state=None, shuffle=False)
+    # normal
+    scaler = preprocessing.MinMaxScaler().fit(X_train)
+    X_train = scaler.transform(X_train)
     
-    acc = []
-    bal = []
-    prec = []
-    rec = []
-    f1 = []
-    cohen = []
+    N = 20
     
-    data = {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
-            "f1-score":[], "cohen kappa":[]}
+    kf = KFold(n_splits=N,random_state=None, shuffle=False)
     
-    for _, (train_index, test_index) in enumerate(kf.split(X_train)):
+    data = get_dict()
+    
+    for fold, (train_index, test_index) in enumerate(kf.split(X_train)):
+        
+        print("Calculating ",f"{round((fold+1)/N*100,2)}%",end="\r")
         
         temp_X = X_train[train_index]
         temp_Y = Y_train[train_index]
         
+        sm = SMOTE(k_neighbors=5)
+        X_res, Y_res = sm.fit_resample(temp_X,temp_Y)
+        
         temp_x_test = X_train[test_index]
         temp_y_test = Y_train[test_index]
         
-        # model = RandomForestClassifier(n_estimators=100)
-        model = QDA()
+        temp_X = np.concatenate((temp_X, X_res))
+        temp_Y = np.concatenate((temp_Y, Y_res))
+        
+        model = RandomForestClassifier(n_estimators=100,n_jobs=-1)
+        # model = QDA()
         
         model.fit(temp_X, temp_Y)
         y_pred = model.predict(temp_x_test)
@@ -69,7 +70,9 @@ def main():
         
         perf.combination(data)
     
-    perf.print_combination(data)
+    print("\r\n")
+    
+    print_combination(data)
     
     # acc = perf.accuracy()
     # bal = perf.balanced_accuracy()
