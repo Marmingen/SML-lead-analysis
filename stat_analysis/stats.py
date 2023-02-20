@@ -1,27 +1,28 @@
 ############################################################
-#
-#
-#
-############################################################
 ## IMPORTS
 
 import sys
-sys.path.append(str(sys.path[0][:-14]))
-from sys import platform
-
-import general_methods as gm
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import statistics as stat
 import os
+
+from sys import platform
 from scipy.stats import t
 
+############################################################
+## FIXING PATH
+
+sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
 dirname = dirname.replace("/stat_analysis", "")
 
-
 ############################################################
+## LOCAL PACKAGES
+
+import general_methods as gm
+
 ############################################################
 ## GLOBALS
 
@@ -33,7 +34,6 @@ gender_to_bin = lambda g : int(bool(g == "Female"))
 
 bar = "************************************************************"
 
-############################################################
 ############################################################
 ## FUNCTIONS         
 
@@ -363,7 +363,6 @@ def grossing_age(data):
     print(bar)
 
 ############################################################
-############################################################
 ## MAIN
           
 def main():
@@ -386,7 +385,6 @@ def main():
     
     grossing_age(training_data)
 
-############################################################
 ############################################################
 ## RUN CODE
     
