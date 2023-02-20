@@ -64,12 +64,10 @@ class Performance():
 def print_combination(data):
     for key in data.keys():
         try:
-            print(data[key])
             print(key + ":", round(sum(data[key])/len(data[key]),2))
         except ZeroDivisionError:
             print(key, "undefined due to strange parameters")  
         except:
-            print(data[key])
             l = len(data[key])
             m = sum(val[0] for val in data[key])
             f = sum(val[1] for val in data[key])
