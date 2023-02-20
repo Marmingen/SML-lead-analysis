@@ -1,13 +1,16 @@
-#################################################
-# this class is used by boosting and random forsest methods
-#################################################
+##########################################################
+# OBSERVE!!
+# THIS CLASS IS DEPRECATED AND NOT USED DUE TO COMPLEXITY
+# AND LACKING PERFORMANCE IN COMPARISON TO SKLEARN, MOST 
+# PROBABLY DUE TO SKL'S USAGE OF C++
+##########################################################
 ## IMPORTS
 
 from math import log
-import numpy as np
 
-#################################################
+##########################################################
 ## TREE CLASS
+
 class Tree():
     
     # Node class for handling the split info storage and predictions

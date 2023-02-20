@@ -1,7 +1,18 @@
+##########################################################
+## IMPORTS
+
 import numpy as np
-from sklearn.metrics import balanced_accuracy_score, precision_score, recall_score, confusion_matrix, f1_score, cohen_kappa_score, roc_curve
+from sklearn.metrics import balanced_accuracy_score, precision_score,\
+                            recall_score, confusion_matrix, f1_score,\
+                            cohen_kappa_score, roc_curve
+
+##########################################################
+## GLOBALS
 
 bar = "##################################################"
+
+##########################################################
+## PERFORMANCE CLASS
 
 class Performance():
     def __init__(self, Y_pred, Y_true, gender=False):
@@ -10,7 +21,7 @@ class Performance():
         self.gender = gender
     
     ##########################################################
-    ## 
+    ## PERFORMANCE METHODS
     
     def accuracy(self):
         return np.sum(self.Y_true == self.Y_pred) / len(self.Y_true)
@@ -62,6 +73,7 @@ class Performance():
 ##########################################################
 ## OUTSIDE FUNCTIONS
 
+# printing the data dict
 def print_combination(data):
     print("mean performance of the folds")
     print(bar)
@@ -78,7 +90,7 @@ def print_combination(data):
             print(key + ":", round(m/l,2), round(f/l,2))
     print(bar)
 
-
+# fetching a data dict
 def get_dict():
     return {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
             "f1-score":[], "cohen kappa":[]}

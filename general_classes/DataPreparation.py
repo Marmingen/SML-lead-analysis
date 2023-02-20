@@ -1,17 +1,12 @@
 ##########################################################
 ## IMPORTS
 
-import numpy as np
 import pandas as pd
 import sys
 import os
-from random import uniform
-from random import randrange
-from sklearn.neighbors import NearestNeighbors
-from scipy import stats
 
 ##########################################################
-## CHECKING FOLDERS
+## FIXING PATH
 
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
@@ -25,26 +20,24 @@ clear = lambda : os.system("cls")
 ##########################################################
 ## DataPreparation CLASS
 
-
 class DataPreparation():
     
     def __init__(self, path_data, numpy_bool = False, gender=False,
-                 random = False, normalize = False, clean=True, custom = False):
+                 random = False, clean=True, custom = False):
         """
         :param str path_data: absolute path to data
         :param bool numpy_bool: convert to numpy.ndarray or keep as pandas
         :param bool gender: keep gender labels as strings or not
-        :param bool random:
-        :param bool normalize:
+        :param bool random: using a random seed for the validation set or not
         :param bool clean: clean colinear data or not
         :param bool custom: use custom parameters for the data features or not
         
         """
         
+        # class attributes
         self.numpy_bool = numpy_bool
         self.gender = gender
         self.random = random
-        self.normalize = normalize
 
         # for OS-check
         try:
@@ -60,7 +53,6 @@ class DataPreparation():
             self.__limit_vars()
         elif custom:
             self.__customized_vars()
-
 
         self.x_length = self.data.shape[0]
         self.y_length = self.data.shape[1]
@@ -79,7 +71,6 @@ class DataPreparation():
         self.data["Diff age"] = self.data["Mean Age Female"]/self.data["Mean Age Male"]
         self.data["Mean age"] = self.data["Age Lead"]/(self.data["Mean Age Female"] + self.data["Mean Age Male"])*2
 
-        
         # logically, the amount of words features were going to be colinear, as seen by the
         # VIF-factors, thus theyre combined into two different features
         # (the fractions for lead and male have VIFs of ~<7, which is quite bad but
@@ -91,7 +82,6 @@ class DataPreparation():
         # if this turns out to increase k-fold accuracy, it stays
         self.data["Diff frac"] = self.data["Difference in words lead and co-lead"]/self.data["Total words"]
         self.data["Frac female actors"] = self.data["Number of female actors"]/self.data["Number of male actors"]
-        
         
         # the feature Year is omitted entirely partly due to it being multicolinear with 
         # features and partyl since it seems to have no large impact on the classification
@@ -120,9 +110,6 @@ class DataPreparation():
             Y_test = Y_test.replace("Female", -1)
             Y_test = Y_test.replace("Male", 1)
         
-        if self.normalize:
-            X_train = (X_train-X_train.min())/(X_train.max()-X_train.min())
-            X_test = (X_test - X_test.min())/(X_test.max() - X_test.min())
         # add visualization methods
 
         # CLEAR COLUMNS AND PREPARE DATA
@@ -134,7 +121,7 @@ class DataPreparation():
             return Y_train, X_train, X_test, Y_test
 
     ##########################################################
-    ## ACCESSABLE METHODS
+    ## ACCESSIBLE METHODS
 
     def get_sets(self):
         return self.X_train, self.X_test, self.Y_train, self.Y_test
@@ -153,67 +140,4 @@ class DataPreparation():
     def visualize(self):
         pass
 
-    # might be deprecated
-    def SMOTE(self, num = None, perc = None, k = 5, SMOTE_feature = -1):
-        # num doesnt work
-        """
-        Synthetic minority over sampling technique
-        
-        Creates minority samples of a given class using k nearest neighbors
-        Inputs:
-            N: percentage of how many more samples should be generated
-            k: k in k nearest neighbors
-            SMOTE_feature: which class that synthetic samples are generated for
-
-        """
-        if num == None and perc == None:
-            print("Need to specify absolute number of points, or percentage of points, that should be generated")
-            return 0
-        elif num != None and perc != None:
-            print("Can't specify both absolute number of points, and percentage of points that should be generated")
-            return 0
-
-        # Create samples of the minority class
-        min_sample_idx = np.where(self.Y_train == SMOTE_feature)[0]
-        
-        print(min_sample_idx)
-        sample = pd.DataFrame(self.X_train[min_sample_idx])
-        T, num_attrs = sample.shape
-
-        if num != None:
-            perc = int((num+T)/T)
-
-            synthetic = np.zeros([perc*T, num_attrs])
-        else:
-            # If N is less than 100%, randomize the class samples
-            if perc < 100:
-                T = round(perc / 100 * T)
-                perc = 100
-            perc = int(perc / 100)
     
-            synthetic = np.zeros([perc*T, num_attrs])
-        new_index = 0
-        nbrs = NearestNeighbors(n_neighbors=k+1).fit(sample.values)
-        
-        # Populate the synthetic samples
-        def populate(N, i, nnarray):
-            nonlocal new_index
-            nonlocal synthetic
-            nonlocal sample
-            while N != 0:
-                nn = randrange(1, k+1)
-                for attr in range(num_attrs):
-                    dif = sample.iloc[nnarray[nn]][attr] - sample.iloc[i][attr]
-                    gap = uniform(0, 1)
-                    synthetic[new_index][attr] = sample.iloc[i][attr] + gap * dif
-                new_index += 1              
-                N = N - 1
-        
-        
-        for i in range(T):
-            nnarray = nbrs.kneighbors(sample.iloc[i].values.reshape(1, -1), return_distance=False)[0]
-            populate(perc, i, nnarray)
-        #print(synthetic)
-        new_y = [SMOTE_feature for _ in range(len(synthetic))]
-        return synthetic, new_y
-        

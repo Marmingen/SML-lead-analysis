@@ -1,10 +1,21 @@
+##########################################################
+# OBSERVE!!
+# THIS CLASS IS DEPRECATED AND NOT USED
+##########################################################
+## IMPORTS
+
 import numpy as np
 import os 
 import sys
+
+##########################################################
+## FIXING PATH 
+
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
 dirname = dirname.replace("/general_classes", "")
-
+##########################################################
+## PCA CLASS
 
 class PCA():
     def __init__(self, num_comp):
