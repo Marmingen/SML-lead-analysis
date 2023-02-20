@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.metrics import balanced_accuracy_score, precision_score, recall_score, confusion_matrix, f1_score, cohen_kappa_score, roc_curve
 
+bar = "##################################################"
 
 class Performance():
     def __init__(self, Y_pred, Y_true, gender=False):
@@ -62,6 +63,8 @@ class Performance():
 ## OUTSIDE FUNCTIONS
 
 def print_combination(data):
+    print("mean performance of the folds")
+    print(bar)
     for key in data.keys():
         try:
             print(key + ":", round(sum(data[key])/len(data[key]),2))
@@ -73,6 +76,8 @@ def print_combination(data):
             f = sum(val[1] for val in data[key])
             
             print(key + ":", round(m/l,2), round(f/l,2))
+    print(bar)
+
 
 def get_dict():
     return {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
