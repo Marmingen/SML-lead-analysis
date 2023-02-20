@@ -28,7 +28,7 @@ from PCA import PCA
 def normal_pred():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, drop_cols = [], numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Normalize the data
@@ -56,7 +56,7 @@ def normal_pred():
 def cross_val():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, drop_cols = [], numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Normalize the data
