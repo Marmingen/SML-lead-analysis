@@ -31,7 +31,7 @@ def normal_pred():
  
     # Set data
     path_data = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path_data, drop_cols =[], numpy_bool = True, gender = False, normalize = True)
+    DataPrep = DataPreparation(path_data, numpy_bool = True, gender = False, normalize = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Use data augmentation
@@ -57,7 +57,7 @@ def normal_pred():
 def cross_val():
     # Set data 
     path_data = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path_data, drop_cols =[], numpy_bool = True, gender = False, normalize = True)
+    DataPrep = DataPreparation(path_data, numpy_bool = True, gender = False, normalize = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Use data augmentation

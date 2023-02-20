@@ -24,7 +24,7 @@ from sklearn.model_selection import cross_val_score
 def main():
     # Get the data sets
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, drop_cols = [], numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Use SMOTE for over sampling
