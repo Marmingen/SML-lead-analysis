@@ -1,6 +1,18 @@
-import numpy as np
-from sklearn.metrics import balanced_accuracy_score, precision_score, recall_score, confusion_matrix, f1_score, cohen_kappa_score, roc_curve
+##########################################################
+## IMPORTS
 
+import numpy as np
+from sklearn.metrics import balanced_accuracy_score, precision_score,\
+                            recall_score, confusion_matrix, f1_score,\
+                            cohen_kappa_score, roc_curve
+
+##########################################################
+## GLOBALS
+
+bar = "##################################################"
+
+##########################################################
+## PERFORMANCE CLASS
 
 class Performance():
     def __init__(self, Y_pred, Y_true, gender=False):
@@ -9,7 +21,7 @@ class Performance():
         self.gender = gender
     
     ##########################################################
-    ## 
+    ## PERFORMANCE METHODS
     
     def accuracy(self):
         return np.sum(self.Y_true == self.Y_pred) / len(self.Y_true)
@@ -57,13 +69,28 @@ class Performance():
         for func, key in zip(funcs, data.keys()):
             data[key].append(func())
             
-    def print_combination(self, data):
-        for key in data.keys():
-            try:
-                print(key + ":", round(sum(data[key])/len(data[key]),2))
-            except ZeroDivisionError:
-                print(key, "undefined due to strange parameters")  
-            except:
-                print(key + ":", round(sum(data[key][0])/len(data[key][0]),2),
-                      round(sum(data[key][1])/len(data[key][1]),2))
     
+##########################################################
+## OUTSIDE FUNCTIONS
+
+# printing the data dict
+def print_combination(data):
+    print("mean performance of the folds")
+    print(bar)
+    for key in data.keys():
+        try:
+            print(key + ":", round(sum(data[key])/len(data[key]),2))
+        except ZeroDivisionError:
+            print(key, "undefined due to strange parameters")  
+        except:
+            l = len(data[key])
+            m = sum(val[0] for val in data[key])
+            f = sum(val[1] for val in data[key])
+            
+            print(key + ":", round(m/l,2), round(f/l,2))
+    print(bar)
+
+# fetching a data dict
+def get_dict():
+    return {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
+            "f1-score":[], "cohen kappa":[]}

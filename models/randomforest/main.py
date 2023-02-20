@@ -1,96 +1,87 @@
-import sys
-sys.path.append('.')
-
-import sklearn
-
-from general_classes import *
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import KFold
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis as QDA
+##########################################################
+## IMPORTS
 
 import numpy as np
 
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import KFold
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis as QDA
+from sklearn import preprocessing
 from imblearn.over_sampling import SMOTE
 
-bar = "##################################################"
+##########################################################
+## FIXING PATH
 
+import sys
+sys.path.append('.')
+
+##########################################################
+## LOCAL PACKAGES
+
+from general_classes import *
+
+##########################################################
+## MAIN
 
 def main():
-    
+    # setting up dataprep instance
     dp = DataPreparation("./data/train.csv", clean=True)
-        
-    X_train, X_test, Y_train, Y_test = dp.get_sets()
     
-    model = RandomForestClassifier(n_estimators=10)
-    
-    model.fit(X=X_train,y=Y_train) 
-    
-    y_predict = model.predict(X_test)
-    
-    perf = Performance(y_predict, Y_test)
-    
-    sm = SMOTE(k_neighbors=5)
-    X_res, Y_res = sm.fit_resample(X_train,Y_train)
-    
-    
-    X_train = np.concatenate((X_train, X_res))
-    Y_train = np.concatenate((Y_train, Y_res))
-    
+    # combines the data due to the usage of k_fold
+    X_train, X_test, Y_train, Y_test = dp.get_sets()    
     X_train = np.concatenate((X_train, X_test))
     Y_train = np.concatenate((Y_train, Y_test))
     
-    kf = KFold(n_splits=20,random_state=None, shuffle=False)
+    # normalizing the data
+    scaler = preprocessing.MinMaxScaler().fit(X_train)
+    X_train = scaler.transform(X_train)
     
-    acc = []
-    bal = []
-    prec = []
-    rec = []
-    f1 = []
-    cohen = []
+    # k-fold parameters
+    N = 20
+    kf = KFold(n_splits=N,random_state=None, shuffle=False)
     
-    data = {"accuracy":[], "balanced accuracy":[], "precision":[], "recall":[],
-            "f1-score":[], "cohen kappa":[]}
+    data = get_dict()   # data dict
     
-    for _, (train_index, test_index) in enumerate(kf.split(X_train)):
+    # the k-fold loops
+    for fold, (train_index, test_index) in enumerate(kf.split(X_train)):
+        # visualizing progress to not drive the user mad
+        print("Calculating ",f"{round((fold+1)/N*100,2)}%",end="\r")
         
+        # k-fold selected data
         temp_X = X_train[train_index]
         temp_Y = Y_train[train_index]
         
+        # SMOTE algo on the selected data
+        sm = SMOTE(k_neighbors=5)
+        X_res, Y_res = sm.fit_resample(temp_X,temp_Y)
+        
+        # this makes sure it is not validated using synthetic data
         temp_x_test = X_train[test_index]
         temp_y_test = Y_train[test_index]
         
-        # model = RandomForestClassifier(n_estimators=100)
-        model = QDA()
+        # adding the synthetic data to the training sets
+        temp_X = np.concatenate((temp_X, X_res))
+        temp_Y = np.concatenate((temp_Y, Y_res))
         
+        # RFC using max cores
+        model = RandomForestClassifier(n_estimators=100,n_jobs=-1)        
         model.fit(temp_X, temp_Y)
+        
+        # predicting using the SMOTE-trained model on non-SMOTEd data
         y_pred = model.predict(temp_x_test)
         
+        # setting up the perf instance
         perf = Performance(y_pred, temp_y_test)
-        
         perf.combination(data)
-    
-    perf.print_combination(data)
-    
-    # acc = perf.accuracy()
-    # bal = perf.balanced_accuracy()
-    # prec = perf.precision()
-    # rec = perf.recall()
-    # conf = perf.confusion()
-    # f1 = perf.f1()
-    # coh = perf.cohen()
-    
-    
-    # print("performance:")
-    # print(bar)
-    # print("accuracy:", round(acc,2))
-    # print("balanced accuracy:", round(bal,2))
-    # print("precision:", round(prec[0],2), round(prec[1],2))
-    # print("recall:", round(rec[0],2),round(rec[1],2))
-    # # print("confusion:", conf)
-    # print("f1-score:", round(f1[0],2),round(f1[1],2))
-    # print("cohen:", round(coh,2))
-    # print(bar)
 
+    #############################
+    # end of k-fold loop
+    
+    print("\r\n")
+    print_combination(data)
+
+##########################################################
+## RUN CODE
 
 if __name__ == "__main__":
     main()
