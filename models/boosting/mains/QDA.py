@@ -21,14 +21,13 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn import preprocessing
 from sklearn.model_selection import GridSearchCV
-from PCA import PCA
 
 ### FUNCTIONS ###
 
 def normal_pred():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, drop_cols = [], numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Normalize the data
@@ -56,7 +55,7 @@ def normal_pred():
 def cross_val():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, drop_cols = [], numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Normalize the data
