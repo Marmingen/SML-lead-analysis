@@ -29,7 +29,7 @@ def main():
     # Fix data
     path_data = dirname + "/data/train.csv"
     drop_cols = []
-    DataPrep = DataPreparation(path_data, numpy_bool = True, gender=False, )
+    DataPrep = DataPreparation(path_data, numpy_bool = True, gender=False)
     
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
