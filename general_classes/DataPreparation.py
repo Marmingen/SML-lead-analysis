@@ -69,7 +69,7 @@ class DataPreparation():
         # this selection was done since the VIF of the features were quite large
         # (logically so), thus theyre combined so that as little information is lost
         self.data["Diff age"] = self.data["Mean Age Female"]/self.data["Mean Age Male"]
-        self.data["Mean age"] = self.data["Age Lead"]/(self.data["Mean Age Female"] + self.data["Mean Age Male"])*2
+        self.data["Lead over mean age"] = self.data["Age Lead"]/(self.data["Mean Age Female"] + self.data["Mean Age Male"])*2
 
         # logically, the amount of words features were going to be colinear, as seen by the
         # VIF-factors, thus theyre combined into two different features
@@ -80,14 +80,15 @@ class DataPreparation():
         self.data["Frac male words"] = self.data["Number words male"]/self.data["Total words"]
         
         # if this turns out to increase k-fold accuracy, it stays
-        self.data["Diff frac"] = self.data["Difference in words lead and co-lead"]/self.data["Total words"]
+        self.data["Difference in words frac"] = self.data["Difference in words lead and co-lead"]/self.data["Total words"]
         self.data["Frac female actors"] = self.data["Number of female actors"]/self.data["Number of male actors"]
         
         # the feature Year is omitted entirely partly due to it being multicolinear with 
         # features and partyl since it seems to have no large impact on the classification
                                     
         self.data = self.data.drop(["Age Lead", "Mean Age Male", "Mean Age Female", "Total words",
-                                    "Difference in words lead and co-lead", "Year", "Gross"],axis=1)
+                                    "Difference in words lead and co-lead", "Year", "Gross",
+                                    "Number words female", "Number words male"],axis=1)
 
 
     def __create_data_sets(self):
