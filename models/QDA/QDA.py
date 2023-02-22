@@ -1,36 +1,38 @@
-### IMPORTS
+##########################################################
+## IMPORTS
 
 import os
 import sys
+import numpy as np
 
-# Check folders so it works for different OS:s
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+from sklearn.metrics import classification_report
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold, KFold
+from sklearn import preprocessing
+from sklearn.model_selection import GridSearchCV
+
+##########################################################
+## FIXING PATH AND OS
+
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
 dirname = dirname.replace("/models/boosting/mains", "")
-sys.path.insert(1, os.path.join(dirname, "general_classes"))
+sys.path.insert(1, os.path.join(dirname, "general_classes/.."))
 
-from DataPreparation import DataPreparation
-from Performance import Performance
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-from sklearn.metrics import confusion_matrix, classification_report, precision_score
-import numpy as np
-from imblearn.over_sampling import SMOTE
-from imblearn.under_sampling import RandomUnderSampler
-from imblearn.pipeline import Pipeline
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn import preprocessing
-from sklearn.model_selection import GridSearchCV
-from PCA import PCA
-from sklearn.model_selection import KFold
-import sklearn.metrics as skl_me
+##########################################################
+## LOCAL PACKAGES
 
-### FUNCTIONS ###
+from general_classes import *
+
+##########################################################
+## FUNCTIONS
 
 def normal_pred():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Normalize the data
@@ -58,7 +60,7 @@ def normal_pred():
 def cross_val():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Normalize the data
@@ -79,7 +81,7 @@ def cross_val():
     # Use k-fold cross validation
     qda = QuadraticDiscriminantAnalysis(reg_param = 0.0)
     model = qda.fit(X_train, Y_train)
-    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3)
     scores = cross_val_score(model, X_train , Y_train, scoring="accuracy", cv=cv)
     for i in range(len(scores)):
         print(f"Iteration: {i}, accuracy: \t {scores[i]}")
@@ -97,32 +99,28 @@ def cross_val():
 def evaluation_cross_val(n_folds = 10):
     # Get the data sets
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Merge the data
     X = np.concatenate((X_train, X_test))
     Y = np.concatenate((Y_train, Y_test))
-
-    # Performance metrics
-    accuracy = np.zeros(n_folds)
-    balanced_accuracy = np.zeros(n_folds)
-    precision = np.zeros(n_folds)
-    recall_F = np.zeros(n_folds)
-    recall_M = np.zeros(n_folds)
-    F1 = np.zeros(n_folds)
-    cohen_kappa = np.zeros(n_folds)
     
-    qda = QuadraticDiscriminantAnalysis(reg_param = 0.0)
+    qda = QuadraticDiscriminantAnalysis()
+    
+    data = get_dict()   # data dict
+    
     
     cross_val = KFold(n_splits = n_folds, shuffle= True, random_state=False)
 
-    for i, (index_train, index_val) in enumerate(cross_val.split(X)):     # cross_val.split() gives the indices for the training and validation data
+    print("Calculating ","0%",end="\r")
+
+    for fold, (index_train, index_val) in enumerate(cross_val.split(X)):     # cross_val.split() gives the indices for the training and validation data
         X_train_loop, X_val_loop = X[index_train], X[index_val]
         Y_train_loop, Y_val_loop = Y[index_train], Y[index_val]
 
         # Use SMOTE for over sampling
-        sm = SMOTE(random_state = 42)
+        sm = SMOTE()
         X_res, Y_res = sm.fit_resample(X_train_loop, Y_train_loop)
         X_train_loop = np.concatenate((X_train_loop, X_res))
         Y_train_loop = np.concatenate((Y_train_loop, Y_res))
@@ -130,29 +128,25 @@ def evaluation_cross_val(n_folds = 10):
         model = qda.fit(X_train_loop, Y_train_loop)
 
         Y_pred_loop = model.predict(X_val_loop)
-
-        accuracy[i] = skl_me.accuracy_score(Y_val_loop, Y_pred_loop)
-        balanced_accuracy[i] = skl_me.balanced_accuracy_score(Y_val_loop, Y_pred_loop)
-        precision[i] = skl_me.precision_score(Y_val_loop, Y_pred_loop)
-        recall_F[i] = skl_me.recall_score(Y_val_loop, Y_pred_loop, pos_label=-1)
-        recall_M[i] = skl_me.recall_score(Y_val_loop, Y_pred_loop, pos_label=1)
-        F1[i] = skl_me.f1_score(Y_val_loop, Y_pred_loop)
-        cohen_kappa[i] = skl_me.cohen_kappa_score(Y_val_loop, Y_pred_loop)
-
-    print(f"Mean accuracy: {np.mean(accuracy)}")
-    print(f"Mean balanced accuracy: {np.mean(balanced_accuracy)}")
-    print(f"Mean precision: {np.mean(precision)}")
-    print(f"Mean recall F: {np.mean(recall_F)}")
-    print(f"Mean recall M: {np.mean(recall_M)}")
-    print(f"Mean f1: {np.mean(F1)}")
-    print(f"Mean cohen kappa: {np.mean(cohen_kappa)}")
+        
+        perf = Performance(Y_pred_loop, Y_val_loop)
+        perf.combination(data)
+        
+        print("Calculating ",f"{round((fold+1)/n_folds*100,2)}%",end="\r")
+    
+    print("\r\n")
+    print_combination(data)
 
 
-### MAIN ###
+##########################################################
+## MAIN
+
 def main():
     normal_pred()
     evaluation_cross_val() 
-    
+
+##########################################################
+## RUN CODE    
 
 if __name__ == "__main__":
     main()
