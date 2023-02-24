@@ -1,0 +1,14 @@
+#### required packages ####
+numpy
+sklearn
+imblearn
+xgboost
+itertools
+
+# visualization and data
+matplotlib
+seaborn
+pandas
+statistics
+scipy
+collinearity

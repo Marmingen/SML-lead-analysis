@@ -13,9 +13,7 @@ from DataPreparation import DataPreparation
 from imblearn.over_sampling import SMOTE
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import classification_report
-from sklearn.model_selection import cross_val_score
 from Performance import Performance
-from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.model_selection import KFold
 import sklearn.metrics as skl_me
 
@@ -24,7 +22,7 @@ import sklearn.metrics as skl_me
 def normal_pred():
     # Get the data sets
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Use SMOTE for over sampling
@@ -52,7 +50,7 @@ def normal_pred():
 def evaluation_cross_val(n_folds = 10):
     # Get the data sets
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Merge the data

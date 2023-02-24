@@ -74,6 +74,8 @@ def bin_gender(data):
     x = list(np.linspace(0,1,200))
     y = [N.pdf(xt) for xt in x]
     
+    print("saving graph...")
+    
     # PLOTTING
     ########################################################
     plt.figure(3)
@@ -88,8 +90,9 @@ def bin_gender(data):
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/normal.png"))
     ########################################################
     
+    print("graph saved as normal.png")
 
-    # LÄGG TILL KONFIDENSINTERVALL
+    print(bar)
 
     return [male, female]
 
@@ -139,6 +142,8 @@ def time_gender(data):
     # PLOTTING
     ########################################################
 
+    print("saving graph 1...")
+
     # the number of male and female leads
     plt.figure(0)
     plt.plot(x_years, males, "b", x_years, females, "r")
@@ -149,6 +154,11 @@ def time_gender(data):
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Amount of movies")
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/numbers.png"))
+    
+    print("graph 1 saved as numbers.png")
+    print(bar)
+    
+    print("saving graph 2...")
     
     # the fraction of female leads, and two linear regressions
     plt.figure(1)
@@ -161,6 +171,10 @@ def time_gender(data):
     plt.ylabel("Fraction of female leads [%]")
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/fraction.png"))
     
+    print("graph 2 saved as fraction.png")
+    print(bar)
+    print("saving graph 3...")
+    
     # the total number of analyzed movies per year
     plt.figure(2)
     plt.plot(x_years, amt)
@@ -170,6 +184,9 @@ def time_gender(data):
     plt.xlabel("Year [1939-2015]")
     plt.ylabel("Total amount of movies in data")
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/amount.png"))
+    
+    print("graph 3 saved as amount.png")
+    print(bar)
     
     
 def gross_gender(data):
@@ -196,6 +213,8 @@ def gross_gender(data):
     x_female = np.linspace(0,female[-1],200)
     y_female = [N_female.pdf(x) for x in x_female]
     
+    print("saving graph")
+    
     # PLOTTING    
     ########################################################
     plt.figure(4)
@@ -211,6 +230,8 @@ def gross_gender(data):
 
     ########################################################
     
+    print("graph saved as grossing.png")
+    
     fmu_str = "female mean [\u03BC]: "
     fsi_str = "female strd deviation [\u03C3]: "
     mmu_str = "male mean [\u03BC]: "
@@ -222,7 +243,7 @@ def gross_gender(data):
     print(f"{fsi_str:{'.'}<30}{f' {round(sigma_female,2)}':{'.'}>30}\n")
     print(f"{mmu_str:{'.'}<30}{f' {round(mu_male,2)}':{'.'}>30}")
     print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
-    two_sample_t_test(y_female, y_male)
+    # two_sample_t_test(y_female, y_male)
     print(bar)
 
 
@@ -354,13 +375,62 @@ def grossing_age(data):
     mmu_str = "male mean [\u03BC]: "
     msi_str = "male strd deviation [\u03C3]: "
     
-    print("\nGROSSING BY GENDER")
     print(bar)
     print(f"{fmu_str:{'.'}<30}{f' {round(mu_female,2)}':{'.'}>30}")
     print(f"{fsi_str:{'.'}<30}{f' {round(sigma_female,2)}':{'.'}>30}\n")
     print(f"{mmu_str:{'.'}<30}{f' {round(mu_male,2)}':{'.'}>30}")
     print(f"{msi_str:{'.'}<30}{f' {round(sigma_male,2)}':{'.'}>30}")
     print(bar)
+    
+############################################################
+## FOR USER INPUT
+    
+def lead_user(choices):
+    
+    def _gender(data):
+        print("### LEAD ROLE BY GENDER ###")
+        print(bar)
+        print(bar)
+        bin_gender(data)
+        print(bar, "\n")
+    
+    def _time(data):
+        print("### LEAD BALANCE OVER TIME ###")
+        print(bar)
+        print(bar)
+        time_gender(data)
+        print(bar, "\n")
+    
+    def _gross(data):
+        print("### LEAD AND GROSSING ###")
+        print(bar)
+        print(bar)
+        gross_gender(data)
+        print(bar, "\n")
+    
+    clear()
+    
+    flags = {"gender": _gender, "time": _time, "gross": _gross}
+    
+    if platform == "darwin": # check for mac os
+        training_data = pd.read_csv(os.path.join(dirname, "data/train.csv"))
+
+    else:
+        training_data = pd.read_csv("data/train.csv")
+
+    print("Statistical Analysis of the Training Data")
+    print("")
+    
+    if len(choices) == 0:
+        _gender(training_data)
+        _time(training_data)
+        _gross(training_data)
+    else:
+        for flag in choices:
+            if flag in flags.keys():
+                flags[flag](training_data)
+                
+    input("press enter to continue")
 
 ############################################################
 ## MAIN
@@ -373,18 +443,23 @@ def main():
         training_data = pd.read_csv("data/train.csv") 
 
     print("STATISTICAL ANALYSIS OF THE TRAINING DATA")
+    print(bar, "\n")
+    print("### LEAD ROLE BY GENDER ###")
     print(bar)
-    
+    print(bar)
     bin_gender(training_data)
-    
+    print(bar, "\n")
+    print("### LEAD BALANCE OVER TIME ###")
+    print(bar)
+    print(bar)
     time_gender(training_data)
-
+    print(bar, "\n")
+    print("### LEAD AND GROSSING ###")
+    print(bar)
+    print(bar)
     gross_gender(training_data)
+    print(bar, "\n")
     
-    # gross_lines(training_data)
-    
-    grossing_age(training_data)
-
 ############################################################
 ## RUN CODE
     

@@ -2,10 +2,7 @@
 import numpy as np
 import sys
 import os
-import pandas as pd
 sys.path.append(str(sys.path[0][:-14]))
-from matplotlib import pyplot as plt
-from statistics import mean
 
 ### CHECKING FOLDERS ###
 dirname = os.getcwd()
@@ -13,7 +10,6 @@ dirname = dirname.replace("/models/boosting/mains", "")
 sys.path.insert(1,os.path.join(dirname, "general_classes"))
 from DataPreparation import DataPreparation
 from Performance import Performance
-from sklearn.model_selection import StratifiedKFold
 sys.path.insert(1, os.path.join(dirname, "models/boosting"))
 from AdaBoost import AdaBoost
 from imblearn.over_sampling import SMOTE
@@ -29,7 +25,7 @@ def main():
     # Fix data
     path_data = dirname + "/data/train.csv"
     drop_cols = []
-    DataPrep = DataPreparation(path_data, numpy_bool = True, gender=False)
+    DataPrep = DataPreparation(path_data, numpy_bool = True)
     
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 

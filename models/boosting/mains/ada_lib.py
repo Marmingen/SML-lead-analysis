@@ -1,17 +1,11 @@
 ### IMPORTS ###
-from numpy import mean
 import numpy as np
-from numpy import std
-from sklearn.datasets import make_classification
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.metrics import classification_report
 from sklearn.ensemble import AdaBoostClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 import sys
 import os
-from itertools import product
-from xgboost import XGBClassifier
 from sklearn.model_selection import KFold
 import sklearn.metrics as skl_me
 
@@ -23,7 +17,6 @@ sys.path.insert(1, os.path.join(dirname, "general_classes"))
 
 from DataPreparation import DataPreparation
 from Performance import Performance
-from sklearn.metrics import accuracy_score
 from imblearn.over_sampling import SMOTE
 from sklearn import preprocessing
 
@@ -33,7 +26,7 @@ def normal_pred():
  
     # Set data
     path_data = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path_data, numpy_bool = True, gender = False, normalize = True)
+    DataPrep = DataPreparation(path_data, numpy_bool = True, gender = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Use data augmentation
@@ -59,7 +52,7 @@ def normal_pred():
 def cross_val():
     # Set data 
     path_data = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path_data, numpy_bool = True, gender = False, normalize = True)
+    DataPrep = DataPreparation(path_data, numpy_bool = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Use data augmentation
@@ -120,7 +113,7 @@ def cross_val():
 def evaluation_cross_val(n_folds = 10):
     # Get the data sets
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True, gender = False)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Merge the data
