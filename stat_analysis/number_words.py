@@ -131,9 +131,9 @@ def roles_years(data):
     
     plt.legend(["Data", "1939-2015", "1980-2015"])
     plt.grid()
-    plt.title("Fraction of female leads over time")
+    plt.title("Fraction of female speaking roles over time")
     plt.xlabel("Year [1939-2015]")
-    plt.ylabel("Fraction of female leads [%]")
+    plt.ylabel("Fraction of female roles [%]")
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/roles-years.png"))
     ########################################################
     

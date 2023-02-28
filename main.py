@@ -7,19 +7,24 @@ from time import sleep
 ############################################################
 ## LOCAL PACKAGES 
 
+print("Importing local packages", end="\r")
 from data.show import show_data
+print("Importing local packages.", end="\r")
 from stat_analysis.number_words import words_user
 from stat_analysis.stats import lead_user
+print("Importing local packages..",end="\r")
 from models.KNN.main import main as knn
 from models.randomforest.main import main as rfc
 from models.QDALDA.QDA import main as qda
 from models.QDALDA.LDA import main as lda
 from models.log_reg.LogReg import main as logr
 from models.boosting.mains.ada_lib import main as ada
+print("Importing local packages...", end="\r")
 from models.boosting.mains.ada_scratch import main as adascratch
 from models.boosting.mains.GDB import main as gdb
-from models.boosting.mains.XGBOOST import main as xgb
+# from models.boosting.mains.XGBOOST import main as xgb
 from models.naive.naive import main as naive
+print("Import of local packages done!")
 
 ############################################################
 ## GLOBALS
@@ -71,12 +76,12 @@ def _analy_menu():
     def _describe(dummy):
         clear()
         print(bar)
-        print("the input is in the format")
-        print("type flag1 flag2 ...")
-        print("where type defines which one of the analyses will be performed")
-        print("and the flags determine which plots will be generated (superflous")
-        print("flags will be discarded). the plots are saved in the directory")
-        print("\"stat_analysis/graphs\"")
+        print("the input is in the format: \"type flag1 flag2 ...\"")
+        print("where type defines which one of the analyses will be")
+        print("performed and the flags determine which plots will be")
+        print("generated (superflous flags will be discarded), no flags")
+        print("will generate all plots. the plots are saved in the")
+        print("directory \"stat_analysis/graphs\"")
         print(bar)
         input("press enter to go back")
     
@@ -124,7 +129,7 @@ def _model_menu():
     
     choices = {"log": logr, "rfc":rfc,\
         "knn": knn, "qda":qda, "lda": lda, "ada": ada, "adascratch":adascratch,\
-        "gdb": gdb, "xgb": xgb, "naive": naive, "back": _back}
+        "gdb": gdb, "xgb": _back, "naive": naive, "back": _back}
     
     while choice != "back":
         print("Select Action || Model Selection")
