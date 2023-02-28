@@ -22,7 +22,7 @@ from models.boosting.mains.ada_lib import main as ada
 print("Importing local packages...", end="\r")
 from models.boosting.mains.ada_scratch import main as adascratch
 from models.boosting.mains.GDB import main as gdb
-# from models.boosting.mains.XGBOOST import main as xgb
+from models.boosting.mains.XGBOOST import main as xgb
 from models.naive.naive import main as naive
 print("Import of local packages done!")
 
@@ -129,7 +129,7 @@ def _model_menu():
     
     choices = {"log": logr, "rfc":rfc,\
         "knn": knn, "qda":qda, "lda": lda, "ada": ada, "adascratch":adascratch,\
-        "gdb": gdb, "xgb": _back, "naive": naive, "back": _back}
+        "gdb": gdb, "xgb": xgb, "naive": naive, "back": _back}
     
     while choice != "back":
         print("Select Action || Model Selection")
