@@ -5,7 +5,7 @@ import os
 import sys
 import numpy as np
 
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import classification_report
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import cross_val_score
