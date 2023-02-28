@@ -31,7 +31,7 @@ class Performance():
     
     def precision(self):
         male_precision = precision_score(self.Y_true, self.Y_pred, pos_label="Male" if self.gender else 1)
-        female_precision = precision_score(self.Y_true, self.Y_pred, pos_label="Female" if self.gender else -1)
+        female_precision = precision_score(self.Y_true, self.Y_pred, pos_label="Female" if self.gender else -1, zero_division=0)
         
         return (male_precision, female_precision)
     
