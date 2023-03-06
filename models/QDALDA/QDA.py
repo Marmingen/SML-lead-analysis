@@ -124,6 +124,11 @@ def evaluation_cross_val(n_folds = 10):
         X_train_loop = np.concatenate((X_train_loop, X_res))
         Y_train_loop = np.concatenate((Y_train_loop, Y_res))
         
+        # Normalize the data
+        scaler = preprocessing.StandardScaler().fit(X_train_loop)
+        X_train_loop = scaler.transform(X_train_loop)
+        X_val_loop = scaler.transform(X_val_loop)
+        
         model = qda.fit(X_train_loop, Y_train_loop)
 
         Y_pred_loop = model.predict(X_val_loop)
@@ -140,7 +145,7 @@ def evaluation_cross_val(n_folds = 10):
 ## MAIN
 
 def main():
-    normal_pred()
+    # normal_pred()
     evaluation_cross_val()
 
 ##########################################################
