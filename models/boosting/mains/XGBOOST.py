@@ -139,6 +139,10 @@ def evaluation_cross_val(n_folds = 10):
     Y = np.concatenate((Y_train, Y_test))
     Y[Y == -1] = 0
 
+    # Normalize the data
+    scaler = preprocessing.StandardScaler().fit(X)
+    X = scaler.transform(X)
+
     # Performance metrics
     accuracy = np.zeros(n_folds)
     balanced_accuracy = np.zeros(n_folds)

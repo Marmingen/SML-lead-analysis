@@ -9,6 +9,7 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import KFold
 import sklearn.metrics as skl_me
 from sklearn.model_selection import GridSearchCV
+from sklearn import preprocessing
 
 ##########################################################
 ## FIXING PATH
@@ -94,6 +95,10 @@ def evaluation_cross_val(n_folds = 10):
     # Merge the data
     X = np.concatenate((X_train, X_test))
     Y = np.concatenate((Y_train, Y_test))
+
+    # Normalize the data
+    scaler = preprocessing.StandardScaler().fit(X)
+    X = scaler.transform(X)
 
     # Performance metrics
     accuracy = np.zeros(n_folds)
