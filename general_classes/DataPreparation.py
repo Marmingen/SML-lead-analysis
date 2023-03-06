@@ -23,7 +23,7 @@ clear = lambda : os.system("cls")
 class DataPreparation():
     
     def __init__(self, path_data, numpy_bool = False, gender=False,
-                 random = False, clean=True, custom = False):
+                 random = False, clean=True, custom = False, test=False):
         """
         :param str path_data: absolute path to data
         :param bool numpy_bool: convert to numpy.ndarray or keep as pandas
@@ -53,10 +53,13 @@ class DataPreparation():
             self.__limit_vars()
         elif custom:
             self.__customized_vars()
-
-        self.x_length = self.data.shape[0]
-        self.y_length = self.data.shape[1]
-        self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
+            
+        if test:
+            self.X_true = self.__create_pred_sets()
+        else:
+            self.x_length = self.data.shape[0]
+            self.y_length = self.data.shape[1]
+            self.Y_train, self.X_train, self.X_test, self.Y_test = self.__create_data_sets()
     
     ##########################################################
     ## SECRET METHODS
@@ -121,6 +124,9 @@ class DataPreparation():
                     X_test.to_numpy(), Y_test.to_numpy()
         else:
             return Y_train, X_train, X_test, Y_test
+        
+    def __create_pred_sets(self):
+        return self.data
 
     ##########################################################
     ## ACCESSIBLE METHODS
