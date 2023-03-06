@@ -5,7 +5,7 @@ import os
 import sys
 import numpy as np
 
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import classification_report
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import cross_val_score
@@ -47,7 +47,7 @@ def normal_pred():
     Y_train = np.concatenate((Y_train, Y_res_a))
 
     # Train the model and make predictions
-    qda = QuadraticDiscriminantAnalysis(reg_param = 0)
+    qda = LinearDiscriminantAnalysis()
     model = qda.fit(X_train, Y_train)
     y_pred = model.predict(X_test)
     
@@ -79,7 +79,7 @@ def cross_val():
     Y_train = np.concatenate((Y_train, Y_test))
     
     # Use k-fold cross validation
-    qda = QuadraticDiscriminantAnalysis(reg_param = 0.0)
+    qda = LinearDiscriminantAnalysis()
     model = qda.fit(X_train, Y_train)
     cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3)
     scores = cross_val_score(model, X_train , Y_train, scoring="accuracy", cv=cv)
@@ -106,7 +106,7 @@ def evaluation_cross_val(n_folds = 10):
     X = np.concatenate((X_train, X_test))
     Y = np.concatenate((Y_train, Y_test))
     
-    qda = QuadraticDiscriminantAnalysis()
+    qda = LinearDiscriminantAnalysis()
     
     data = get_dict()   # data dict
     

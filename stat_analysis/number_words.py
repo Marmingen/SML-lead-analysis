@@ -75,6 +75,8 @@ def bin_roles(data):
     x = list(np.linspace(-1,1,200))
     y = [N.pdf(xt) for xt in x]
     
+    print("saving graph...")
+    
     # PLOTTING
     ########################################################
     plt.figure(1)
@@ -87,6 +89,8 @@ def bin_roles(data):
     plt.title("Patriarchy            Equality            Matriarchy")
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/bin-roles.png"))
     ########################################################
+    print("graph saved as bin-roles.png")
+    print(bar)
     
 def roles_years(data):
     
@@ -127,13 +131,13 @@ def roles_years(data):
     
     plt.legend(["Data", "1939-2015", "1980-2015"])
     plt.grid()
-    plt.title("Fraction of female leads over time")
+    plt.title("Fraction of female speaking roles over time")
     plt.xlabel("Year [1939-2015]")
-    plt.ylabel("Fraction of female leads [%]")
+    plt.ylabel("Fraction of female roles [%]")
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/roles-years.png"))
     ########################################################
     
-    print("graph saved!")
+    print("graph saved as roles-years.png")
     print(bar)
     
     
@@ -180,7 +184,7 @@ def words_gross(data):
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/words-gross-sing.png"))
     ########################################################
     
-    print("graph 1 saved!")
+    print("graph 1 saved as words-gross-sing.png")
     print(bar)
     
     words_gross_M(data)
@@ -213,7 +217,7 @@ def words_gross_M(data):
     x = [newlims[0], newlims[-1]]
     y = [theta1[0] + x[0]*theta1[1], theta1[0]+x[1]*theta1[1]]
     
-    print("saving graph 1...")
+    print("saving graph 2...")
     
     # PLOTTING
     ########################################################
@@ -228,7 +232,7 @@ def words_gross_M(data):
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/words-gross-male.png"))
     ########################################################
     
-    print("graph 1 saved!")
+    print("graph 2 saved as words-gross-male.png")
     print(bar)
     
     words_frac(data)
@@ -259,7 +263,7 @@ def words_frac(data):
     x = [newlims[0], newlims[-1]]
     y = [theta1[0] + x[0]*theta1[1], theta1[0]+x[1]*theta1[1]]
     
-    print("saving graph 2...")
+    print("saving graph 3...")
     
     # PLOTTING
     ########################################################
@@ -274,7 +278,7 @@ def words_frac(data):
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/words-gross-frac.png"))
     ########################################################
     
-    print("graph 2 saved!")
+    print("graph 3 saved as words-gross-frac.png")
     print(bar)
     
     words_frac_M(data)
@@ -305,7 +309,7 @@ def words_frac_M(data):
     x = [newlims[0], newlims[-1]]
     y = [theta1[0] + x[0]*theta1[1], theta1[0]+x[1]*theta1[1]]
     
-    print("saving graph 2...")
+    print("saving graph 4...")
     
     # PLOTTING
     ########################################################
@@ -320,8 +324,58 @@ def words_frac_M(data):
     plt.savefig(os.path.join(dirname, "stat_analysis/graphs/words-gross-frac-male.png"))
     ########################################################
     
-    print("graph 2 saved!")
+    print("graph 4 saved as words-gross-frac-male.png")
     print(bar)
+
+############################################################
+## FOR USER INPUT
+
+def words_user(choices):
+    
+    def _gender(data):
+        print("### MAJOR ROLE BY GENDER ###")
+        print(bar)
+        print(bar)
+        bin_roles(data)
+        print(bar, "\n")
+    
+    def _time(data):
+        print("### ROLE BALANCE OVER TIME ###")
+        print(bar)
+        print(bar)
+        roles_years(data)
+        print(bar, "\n")
+    
+    def _gross(data):
+        print("### WORDS SPOKEN AND GROSSING ###")
+        print(bar)
+        print(bar)
+        words_gross(data)
+        print(bar, "\n")
+    
+    clear()
+    
+    flags = {"gender": _gender, "time": _time, "gross": _gross}
+    
+    if platform == "darwin": # check for mac os
+        training_data = pd.read_csv(os.path.join(dirname, "data/train.csv"))
+
+    else:
+        training_data = pd.read_csv("data/train.csv")
+
+    print("Statistical Analysis of the Training Data")
+    print("")
+    
+    if len(choices) == 0:
+        _gender(training_data)
+        _time(training_data)
+        _gross(training_data)
+    else:
+        for flag in choices:
+            if flag in flags.keys():
+                flags[flag](training_data)
+                
+    input("press enter to continue")
 
 ############################################################
 ## MAIN

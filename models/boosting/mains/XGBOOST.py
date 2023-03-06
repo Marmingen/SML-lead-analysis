@@ -23,7 +23,7 @@ import sklearn.metrics as skl_me
 def normal_pred():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
     Y_train[Y_train == -1] = 0
     Y_test[Y_test == -1] = 0
@@ -53,7 +53,7 @@ def normal_pred():
 def cross_val():
     # Set data
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
     Y_train[Y_train == -1] = 0
     Y_test[Y_test == -1] = 0
@@ -85,7 +85,7 @@ def cross_val():
 def evaluation_cross_val(n_folds = 10):
     # Get the data sets
     path = dirname + "/data/train.csv"
-    DataPrep = DataPreparation(path, numpy_bool = True, gender = False, normalize = False)
+    DataPrep = DataPreparation(path, numpy_bool = True)
     X_train, X_test, Y_train, Y_test = DataPrep.get_sets()
 
     # Merge the data

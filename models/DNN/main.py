@@ -1,3 +1,7 @@
+############################################################
+## OBSERVE THAT DNN IS DEPRICATED
+############################################################
+
 # Setup plotting
 import matplotlib.pyplot as plt
 import seaborn as sns
