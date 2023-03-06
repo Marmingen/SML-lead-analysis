@@ -158,7 +158,11 @@ def evaluation_cross_val(n_folds = 10):
     recall_M = np.zeros(n_folds)
     F1_M = np.zeros(n_folds)
     F1_F = np.zeros(n_folds)
-    cohen_kappa = np.zeros(n_folds)    
+    cohen_kappa = np.zeros(n_folds)  
+
+    # Normalize the data
+    scaler = preprocessing.StandardScaler().fit(X)
+    X = scaler.transform(X)
 
     Ada = AdaBoostClassifier()
     
