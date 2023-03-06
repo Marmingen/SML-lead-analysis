@@ -98,7 +98,7 @@ def main():
         temp_Y = np.concatenate((temp_Y, Y_res))
         
         # RFC using max cores
-        model = RandomForestClassifier(n_estimators=100,n_jobs=-1, bootstrap=True, criterion="gini", max_depth=60, max_features="auto", max_leaf_nodes=100, min_samples_leaf=2)        
+        model = RandomForestClassifier(n_estimators=100,n_jobs=-1, bootstrap=True, criterion="gini", max_depth=60, max_leaf_nodes=100, min_samples_leaf=2)        
         model.fit(temp_X, temp_Y)
         
         # predicting using the SMOTE-trained model on non-SMOTEd data
