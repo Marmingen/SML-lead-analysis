@@ -207,7 +207,7 @@ def evaluation_cross_val(n_folds = 10):
 def main():
     normal_pred()
     evaluation_cross_val()
-    hyper_tuning()
+    #hyper_tuning()
 
 ##########################################################
 ## RUN CODE
