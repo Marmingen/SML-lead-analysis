@@ -110,7 +110,6 @@ def evaluation_cross_val(n_folds = 10):
     
     data = get_dict()   # data dict
     
-    
     cross_val = KFold(n_splits = n_folds, shuffle= True, random_state=False)
 
     print("Calculating ","0%",end="\r")
@@ -137,13 +136,12 @@ def evaluation_cross_val(n_folds = 10):
     print("\r\n")
     print_combination(data)
 
-
 ##########################################################
 ## MAIN
 
 def main():
     normal_pred()
-    evaluation_cross_val() 
+    evaluation_cross_val()
 
 ##########################################################
 ## RUN CODE    
