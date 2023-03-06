@@ -8,17 +8,19 @@ from sklearn.model_selection import KFold
 from sklearn import preprocessing
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import GridSearchCV
+import sys
+import os 
 
 ##########################################################
 ## FIXING PATH
-
-import sys
-sys.path.append('.')
+sys.path.append(str(sys.path[0][:-14]))
+dirname = os.getcwd()
+sys.path.insert(1, os.path.join(dirname, "general_classes"))
 
 ##########################################################
 ## LOCAL PACKAGES
 
-from general_classes import *
+from general_classes import DataPreparation 
 
 ##########################################################
 ## GLOBALS
