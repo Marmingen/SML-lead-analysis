@@ -1,28 +1,31 @@
-### IMPORTS ###
+##########################################################
+## IMPORTS
 import os
 import sys
 import numpy as np
+from imblearn.over_sampling import SMOTE
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import classification_report
+from sklearn.model_selection import KFold
+import sklearn.metrics as skl_me
+from sklearn.model_selection import GridSearchCV
 
-# Check folders so it works for different OS:s
+##########################################################
+## FIXING PATH
 sys.path.append(str(sys.path[0][:-14]))
 dirname = os.getcwd()
 dirname = dirname.replace("/models/boosting/mains", "")
 sys.path.insert(1, os.path.join(dirname, "general_classes"))
 
+##########################################################
+## LOCAL PACKAGES
 from DataPreparation import DataPreparation
-from imblearn.over_sampling import SMOTE
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import classification_report
 from Performance import Performance
-from sklearn.model_selection import KFold
-import sklearn.metrics as skl_me
-from sklearn.model_selection import GridSearchCV
 
-
-
+##########################################################
+## METHODS
 def hyper_tuning():
     """ Tuning with GridSearch """
-    
     # Hyperparameters that could be useful to tune
     
     parameters = {
@@ -36,6 +39,7 @@ def hyper_tuning():
     "subsample":[0.5, 0.618, 0.8, 0.95, 1.0],
     "n_estimators":[100]
     }
+
     # Get the data sets
     path = dirname + "/data/train.csv"
     DataPrep = DataPreparation(path, numpy_bool = True)
@@ -108,7 +112,8 @@ def evaluation_cross_val(n_folds = 10):
     
     cross_val = KFold(n_splits = n_folds, shuffle= True, random_state=False)
 
-    for i, (index_train, index_val) in enumerate(cross_val.split(X)):     # cross_val.split() gives the indices for the training and validation data
+    for i, (index_train, index_val) in enumerate(cross_val.split(X)):     
+        # cross_val.split() gives the indices for the training and validation data
         X_train_loop, X_val_loop = X[index_train], X[index_val]
         Y_train_loop, Y_val_loop = Y[index_train], Y[index_val]
 
@@ -126,12 +131,10 @@ def evaluation_cross_val(n_folds = 10):
         balanced_accuracy[i] = skl_me.balanced_accuracy_score(Y_val_loop, Y_pred_loop)
         precision_M[i] = skl_me.precision_score(Y_val_loop, Y_pred_loop, pos_label=1)
         precision_F[i] = skl_me.precision_score(Y_val_loop, Y_pred_loop, pos_label = -1)
-
         recall_F[i] = skl_me.recall_score(Y_val_loop, Y_pred_loop, pos_label=-1)
         recall_M[i] = skl_me.recall_score(Y_val_loop, Y_pred_loop, pos_label=1)
         F1_M[i] = skl_me.f1_score(Y_val_loop, Y_pred_loop, pos_label=1)
         F1_F[i] = skl_me.f1_score(Y_val_loop, Y_pred_loop, pos_label=-1)
-
         cohen_kappa[i] = skl_me.cohen_kappa_score(Y_val_loop, Y_pred_loop)
     
     print(f"Mean accuracy: {np.mean(accuracy)}")
@@ -145,12 +148,15 @@ def evaluation_cross_val(n_folds = 10):
     print(f"Mean precision F: {np.mean(precision_F)}")
 
 
-
-### MAIN ###
-
+##########################################################
+## MAIN
 def main():
     normal_pred()
     evaluation_cross_val()
     #hyper_tuning()
+
+
+##########################################################
+## RUN CODE
 if __name__ == "__main__":
     main()
